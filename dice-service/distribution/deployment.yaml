@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dice-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dice-service
+  template:
+    metadata:
+      labels:
+        app: dice-service
+    spec:
+      containers:
+        - name: dice-service
+          image: dice-service:1.0.0
+          ports:
+            - containerPort: 8080
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "500m"
+            limits:
+              memory: "1024Mi"
+              cpu: "1000m"
