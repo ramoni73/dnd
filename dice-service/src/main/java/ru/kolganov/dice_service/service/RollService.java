@@ -1,45 +1,56 @@
 package ru.kolganov.dice_service.service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.kolganov.dice_service.model.DiceModelResult;
 import ru.kolganov.dice_service.model.DiceModelRq;
 import ru.kolganov.dice_service.model.DiceModelRs;
 import ru.kolganov.dice_service.model.DiceType;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.IntStream;
 
+@Slf4j
 @Service
 public class RollService {
-    public DiceModelRs getRolls(final List<DiceModelRq> diceModelRqs) {
-        Integer result = 0;
-        final List<DiceModelResult> rollResults = diceModelRqs.stream()
-                .map(m -> rollDice(m.diceType(), m.count()))
-                .flatMap(Collection::stream)
-                .toList();
+    private final Random random = new Random();
 
-        for (DiceModelResult diceModelResult : rollResults) {
-            result += diceModelResult.rollResult();
+    public DiceModelRs getRolls(final List<DiceModelRq> diceModelRqs) {
+        log.info("Starting getRolls with requests: {}", diceModelRqs);
+
+        if (diceModelRqs == null || diceModelRqs.isEmpty()) {
+            log.warn("Received null or empty diceModelRqs list");
+            throw new IllegalArgumentException("DiceModelRqs list cannot be null or empty");
         }
 
-        return new DiceModelRs(result, rollResults);
+        final List<DiceModelResult> rollResults = diceModelRqs.stream()
+                .flatMap(m -> rollDice(m.diceType(), m.count()).stream())
+                .toList();
+
+        final int totalResult = rollResults.stream()
+                .mapToInt(DiceModelResult::rollResult)
+                .sum();
+
+        log.info("Finished getRolls. Total result: {}, Roll results: {}", totalResult, rollResults);
+        return new DiceModelRs(totalResult, rollResults);
     }
 
     private List<DiceModelResult> rollDice(final DiceType diceType, final Integer count) {
-        final List<DiceModelResult> diceResults = new ArrayList<>();
-
-        for (int i = 1; i <= count; i++) {
-            final var diceRoll = getRandom(diceType);
-            diceResults.add(new DiceModelResult(diceType, diceRoll));
+        if (count <= 0) {
+            log.warn("Invalid count value for diceType {}: {}", diceType, count);
+            throw new IllegalArgumentException("Count must be greater than zero");
         }
 
-        return diceResults;
+        log.debug("Rolling {} dice of type {}", count, diceType);
+        return IntStream.range(0, count)
+                .mapToObj(i -> new DiceModelResult(diceType, getRandom(diceType)))
+                .toList();
     }
 
     private int getRandom(final DiceType diceType) {
-        final Random random = new Random();
-        return random.ints(diceType.getMin(), diceType.getMax()).findFirst().getAsInt();
+        int result = random.nextInt(diceType.getMin(), diceType.getMax() + 1);
+        log.debug("Generated random number for diceType {}: {}", diceType, result);
+        return result;
     }
 }
