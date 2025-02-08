@@ -40,4 +40,4 @@
    2. Примените конфигурацию: `kubectl apply -f service.yaml`.
 3. Проверка работы:
    1. После развертывания проверьте статус Pod'ов: `kubectl get pods`.
-   2. И проверьте доступность сервиса: `kubectl get services`
+2. И проверьте доступность сервиса: `kubectl get services`
