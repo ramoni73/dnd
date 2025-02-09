@@ -18,9 +18,12 @@ CREATE TABLE ability (
 CREATE TABLE skill (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     ability_id UUID NOT NULL REFERENCES ability(id),
+    code VARCHAR(50) UNIQUE NOT NULL,
     name VARCHAR(50) UNIQUE NOT NULL,
     description VARCHAR(150) NOT NULL
 );
+
+CREATE INDEX idx_skill_ability_id ON skill(ability_id);
 
 -- changeset ramoni73:basic_tables_feat
 CREATE TYPE feat_category AS ENUM ('ORIGIN', 'GENERAL', 'FIGHTING_STYLE', 'EPIC_BOON');
@@ -47,20 +50,7 @@ CREATE TABLE character_class_property (
     value VARCHAR(500) NOT NULL
 );
 
--- changeset ramoni73:basic_tables_background
-CREATE TABLE background (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    code VARCHAR(50) UNIQUE NOT NULL,
-    name VARCHAR(50) UNIQUE NOT NULL,
-    description TEXT
-);
-
-CREATE TABLE background_property (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    background_id UUID NOT NULL REFERENCES background(id),
-    name VARCHAR(100) UNIQUE NOT NULL,
-    description VARCHAR(500) NOT NULL
-);
+CREATE INDEX idx_character_class_property_class_id ON character_class_property(class_id);
 
 -- changeset ramoni73:basic_tables_race
 CREATE TABLE race (
@@ -77,6 +67,8 @@ CREATE TABLE race_property (
     value VARCHAR(500) NOT NULL
 );
 
+CREATE INDEX idx_race_property_race_id ON race_property(race_id);
+
 CREATE TABLE sub_race (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     race_id UUID NOT NULL REFERENCES race(id),
@@ -85,9 +77,13 @@ CREATE TABLE sub_race (
     description TEXT
 );
 
+CREATE INDEX idx_sub_race_race_id ON sub_race(race_id);
+
 CREATE TABLE sub_race_property (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    race_id UUID NOT NULL REFERENCES sub_race(id),
+    sub_race_id UUID NOT NULL REFERENCES sub_race(id),
     name VARCHAR(100) NOT NULL,
     value VARCHAR(500) NOT NULL
 );
+
+CREATE INDEX idx_sub_race_property_sub_race_id ON sub_race_property(sub_race_id);
