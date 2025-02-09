@@ -1,125 +1,93 @@
 -- liquibase formatted sql
 
--- changeset ramoni73:1
--- Таблицы-справочники
-CREATE TABLE races (
-    id SERIAL PRIMARY KEY,
-    name VARCHAR(50) UNIQUE NOT NULL,
-    description TEXT
-);
+-- changeset ramoni73:basic_uuid_extension
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
-CREATE TABLE subraces (
-    id SERIAL PRIMARY KEY,
-    race_id INT NOT NULL REFERENCES races(id),
-    name VARCHAR(50) NOT NULL,
-    description TEXT,
-    UNIQUE(race_id, name)
-);
+-- changeset ramoni73:basic_types
+CREATE TYPE ability_code AS ENUM ('STR', 'DEX', 'CON', 'INT', 'WIS', 'CHA');
 
-CREATE TABLE classes (
-    id SERIAL PRIMARY KEY,
-    name VARCHAR(50) UNIQUE NOT NULL,
-    hit_dice VARCHAR(10) NOT NULL
-);
-
-CREATE TABLE backgrounds (
-    id SERIAL PRIMARY KEY,
-    name VARCHAR(50) UNIQUE NOT NULL,
-    description TEXT
-);
-
--- Характеристики (Core Abilities)
-CREATE TABLE abilities (
-    id SERIAL PRIMARY KEY,
+-- changeset ramoni73:basic_tables_ability
+CREATE TABLE ability (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    code ability_code NOT NULL,
     name VARCHAR(20) UNIQUE NOT NULL,
-    short_name VARCHAR(3) UNIQUE NOT NULL  -- STR, DEX и т.д.
+    description VARCHAR(150) NOT NULL
 );
 
-INSERT INTO abilities (name, short_name) VALUES
-('Сила', 'STR'),
-('Ловкость', 'DEX'),
-('Телосложение', 'CON'),
-('Интеллект', 'INT'),
-('Мудрость', 'WIS'),
-('Харизма', 'CHA');
+-- changeset ramoni73:basic_tables_skill
+CREATE TABLE skill (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    ability_id UUID NOT NULL REFERENCES ability(id),
+    name VARCHAR(50) UNIQUE NOT NULL,
+    description VARCHAR(150) NOT NULL
+);
 
--- Навыки (Skills)
-CREATE TABLE skills (
-    id SERIAL PRIMARY KEY,
-    ability_id INT NOT NULL REFERENCES abilities(id),
+-- changeset ramoni73:basic_tables_feat
+CREATE TYPE feat_category AS ENUM ('ORIGIN', 'GENERAL', 'FIGHTING_STYLE', 'EPIC_BOON');
+
+CREATE TABLE feat (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    code VARCHAR(50) UNIQUE NOT NULL,
+    name VARCHAR(50) UNIQUE NOT NULL,
+    category feat_category NOT NULL
+);
+
+-- changeset ramoni73:basic_tables_character_class
+CREATE TABLE character_class (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    code VARCHAR(50) UNIQUE NOT NULL,
+    name VARCHAR(50) UNIQUE NOT NULL,
+    description VARCHAR(500) NOT NULL
+);
+
+CREATE TABLE character_class_property (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    class_id UUID NOT NULL REFERENCES character_class(id),
+    name VARCHAR(100) NOT NULL,
+    value VARCHAR(500) NOT NULL
+);
+
+-- changeset ramoni73:basic_tables_background
+CREATE TABLE background (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    code VARCHAR(50) UNIQUE NOT NULL,
     name VARCHAR(50) UNIQUE NOT NULL,
     description TEXT
 );
 
-INSERT INTO skills (ability_id, name) VALUES
-(1, 'Атлетика'),
-(2, 'Акробатика'),
-(2, 'Ловкость рук'),
-(2, 'Скрытность'),
-(4, 'Магия'),
-(4, 'История'),
-(4, 'Расследование'),
-(4, 'Природа'),
-(4, 'Религия'),
-(5, 'Обращение с животными'),
-(5, 'Проницательность'),
-(5, 'Медицина'),
-(5, 'Восприятие'),
-(5, 'Выживание'),
-(6, 'Обман'),
-(6, 'Запугивание'),
-(6, 'Выступление'),
-(6, 'Убеждение');
+CREATE TABLE background_property (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    background_id UUID NOT NULL REFERENCES background(id),
+    name VARCHAR(100) UNIQUE NOT NULL,
+    description VARCHAR(500) NOT NULL
+);
 
--- Основная таблица персонажей
-CREATE TABLE characters (
-    id UUID PRIMARY KEY,
+-- changeset ramoni73:basic_tables_race
+CREATE TABLE race (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    code VARCHAR(50) UNIQUE NOT NULL,
+    name VARCHAR(50) UNIQUE NOT NULL,
+    description TEXT
+);
+
+CREATE TABLE race_property (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    race_id UUID NOT NULL REFERENCES race(id),
     name VARCHAR(100) NOT NULL,
-    race_id INT NOT NULL REFERENCES races(id),
-    subrace_id INT REFERENCES subraces(id),
-    class_id INT NOT NULL REFERENCES classes(id),
-    background_id INT NOT NULL REFERENCES backgrounds(id),
-    level INT NOT NULL CHECK (level >= 1),
-    experience INT NOT NULL CHECK (experience >= 0)
+    value VARCHAR(500) NOT NULL
 );
 
--- Базовые характеристики персонажа
-CREATE TABLE character_abilities (
-    character_id UUID REFERENCES characters(id),
-    ability_id INT REFERENCES abilities(id),
-    base_value INT NOT NULL CHECK (base_value BETWEEN 1 AND 30),
-    PRIMARY KEY (character_id, ability_id)
+CREATE TABLE sub_race (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    race_id UUID NOT NULL REFERENCES race(id),
+    code VARCHAR(50) UNIQUE NOT NULL,
+    name VARCHAR(50) UNIQUE NOT NULL,
+    description TEXT
 );
 
--- Бонусы к характеристикам от разных источников
-CREATE TABLE ability_bonus_sources (
-    id SERIAL PRIMARY KEY,
-    source_type VARCHAR(20) NOT NULL,  -- RACE, SUBRACE, BACKGROUND и т.д.
-    source_id INT NOT NULL,  -- ID из соответствующей таблицы
-    ability_id INT REFERENCES abilities(id),
-    bonus INT NOT NULL,
-    CHECK (source_type IN ('RACE', 'SUBRACE', 'BACKGROUND', 'FEAT'))
+CREATE TABLE sub_race_property (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    race_id UUID NOT NULL REFERENCES sub_race(id),
+    name VARCHAR(100) NOT NULL,
+    value VARCHAR(500) NOT NULL
 );
-
--- Владение навыками
-CREATE TABLE character_skills (
-    character_id UUID REFERENCES characters(id),
-    skill_id INT REFERENCES skills(id),
-    proficiency_type VARCHAR(20) NOT NULL CHECK (proficiency_type IN ('NONE', 'PROFICIENCY', 'EXPERTISE')),
-    PRIMARY KEY (character_id, skill_id)
-);
-
--- Бонусы к навыкам от разных источников
-CREATE TABLE skill_bonus_sources (
-    id SERIAL PRIMARY KEY,
-    source_type VARCHAR(20) NOT NULL,
-    source_id INT NOT NULL,
-    skill_id INT REFERENCES skills(id),
-    bonus INT NOT NULL
-);
-
--- Индексы
-CREATE INDEX idx_ability_bonus_sources ON ability_bonus_sources(source_type, source_id);
-CREATE INDEX idx_skill_bonus_sources ON skill_bonus_sources(source_type, source_id);
-CREATE INDEX idx_character_abilities ON character_abilities(character_id);
-CREATE INDEX idx_character_skills ON character_skills(character_id);

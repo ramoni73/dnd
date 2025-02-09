@@ -7,6 +7,6 @@
 
     <!-- Включаем SQL-скрипты в порядке их применения -->
     <include file="db/changelog/V1__initial_schema.sql"/>
-    <include file="db/changelog/V2__seed_reference_data.sql"/>
+    <include file="db/changelog/V2__initial_data.sql"/>
 
 </databaseChangeLog>
