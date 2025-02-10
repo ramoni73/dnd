@@ -10,5 +10,7 @@
     <include file="db/changelog/V2__initial_data.sql"/>
     <include file="db/changelog/V3__background_schema.sql"/>
     <include file="db/changelog/V3__background_data.sql"/>
+    <include file="db/changelog/V4__race_schema.sql"/>
+    <include file="db/changelog/V4__race_data.sql"/>
 
 </databaseChangeLog>

@@ -8,10 +8,10 @@ import java.util.UUID;
 @Data
 @Entity
 @Builder
-@Table(name = "race_property")
+@Table(name = "race_special_trait")
 @NoArgsConstructor
 @AllArgsConstructor
-public class RaceProperty {
+public class RaceSpecialTrait {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "id", updatable = false, nullable = false)

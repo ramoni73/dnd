@@ -30,9 +30,18 @@ public class Race {
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 
+    @Column(name = "creature_type", nullable = false)
+    private String creatureType;
+
+    @Column(name = "creature_size", nullable = false)
+    private String creatureSize;
+
+    @Column(name = "speed", nullable = false)
+    private Integer speed;
+
     @OneToMany(mappedBy = "race", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<SubRace> subRaces = new ArrayList<>();
 
     @OneToMany(mappedBy = "race", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<RaceProperty> properties = new ArrayList<>();
+    private List<RaceSpecialTrait> specialTraits = new ArrayList<>();
 }

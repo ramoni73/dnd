@@ -3,6 +3,7 @@ package ru.kolganov.character_service.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.NaturalId;
+import ru.kolganov.character_service.entity.enums.AbilityCode;
 
 import java.util.ArrayList;
 import java.util.List;
