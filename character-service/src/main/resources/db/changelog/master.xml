@@ -6,11 +6,13 @@
                         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.4.xsd">
 
     <!-- Включаем SQL-скрипты в порядке их применения -->
-    <include file="db/changelog/V1__initial_schema.sql"/>
-    <include file="db/changelog/V2__initial_data.sql"/>
-    <include file="db/changelog/V3__background_schema.sql"/>
-    <include file="db/changelog/V3__background_data.sql"/>
-    <include file="db/changelog/V4__race_schema.sql"/>
-    <include file="db/changelog/V4__race_data.sql"/>
+    <include file="db/changelog/01__initial_schema.sql"/>
+    <include file="db/changelog/01__initial_data.sql"/>
+    <include file="db/changelog/02__feat_schema.sql"/>
+    <include file="db/changelog/02__feat_data.sql"/>
+    <include file="db/changelog/03__race_schema.sql"/>
+    <include file="db/changelog/03__race_data.sql"/>
+    <include file="db/changelog/04__background_schema.sql"/>
+    <include file="db/changelog/04__background_data.sql"/>
 
 </databaseChangeLog>
