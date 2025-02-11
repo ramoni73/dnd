@@ -4,7 +4,7 @@ services:
   # Служба для PostgreSQL
   postgres:
     image: postgres:15
-    container_name: character_service_postgres
+    container_name: reference_service_postgres
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}

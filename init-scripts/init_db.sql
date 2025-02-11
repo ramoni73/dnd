@@ -1,7 +1,7 @@
-CREATE DATABASE character_service_db;
+CREATE DATABASE reference_service_db;
 
-CREATE USER character_user WITH PASSWORD 'character_pass';
+CREATE USER reference_user WITH PASSWORD 'reference_pass';
 
-GRANT CONNECT ON DATABASE character_service_db TO character_user;
-GRANT USAGE ON SCHEMA public TO character_user;
-GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO character_user;
+GRANT CONNECT ON DATABASE reference_service_db TO reference_user;
+GRANT USAGE ON SCHEMA public TO reference_user;
+GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO reference_user;
