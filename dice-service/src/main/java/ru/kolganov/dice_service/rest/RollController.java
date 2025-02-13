@@ -10,6 +10,7 @@ import ru.kolganov.dice_service.model.DiceModelRs;
 import ru.kolganov.dice_service.rest.dto.DiceDto;
 import ru.kolganov.dice_service.rest.dto.RollDtoRq;
 import ru.kolganov.dice_service.rest.dto.RollDtoRs;
+import ru.kolganov.dice_service.service.DiceRollService;
 import ru.kolganov.dice_service.service.RollService;
 
 import java.util.List;
@@ -19,12 +20,12 @@ import java.util.Optional;
 @RestController
 @RequiredArgsConstructor
 public class RollController {
-    private final RollService rollService;
+    private final DiceRollService diceRollService;
 
     @PostMapping("rest/api/v1/roll")
     public ResponseEntity<RollDtoRs> getRoll(final @RequestBody RollDtoRq rollDtoRq) {
         if (Objects.nonNull(rollDtoRq)) {
-            final DiceModelRs result = rollService.getRolls(
+            final DiceModelRs result = diceRollService.getRolls(
                     rollDtoRq.diceRolls().stream()
                             .map(m -> new DiceModelRq(m.diceType(), m.count()))
                             .toList());
