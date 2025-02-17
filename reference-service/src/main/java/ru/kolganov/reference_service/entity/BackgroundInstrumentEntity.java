@@ -11,10 +11,10 @@ import java.util.UUID;
 @Data
 @Entity
 @Builder
-@Table(name = "background_equipment")
+@Table(name = "background_instrument")
 @NoArgsConstructor
 @AllArgsConstructor
-public class BackgroundEquipment {
+public class BackgroundInstrumentEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "id", updatable = false, nullable = false)
@@ -22,7 +22,7 @@ public class BackgroundEquipment {
 
     @ManyToOne
     @JoinColumn(name = "background_id", nullable = false)
-    private Background background;
+    private BackgroundEntity backgroundEntity;
 
     @Column(nullable = false)
     private String value;

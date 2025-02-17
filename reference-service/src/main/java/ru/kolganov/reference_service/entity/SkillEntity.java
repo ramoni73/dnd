@@ -3,30 +3,32 @@ package ru.kolganov.reference_service.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.NaturalId;
-import ru.kolganov.reference_service.entity.enums.FeatCategory;
 
 import java.util.UUID;
 
 @Data
 @Entity
 @Builder
-@Table(name = "feat")
+@Table(name = "skill")
 @NoArgsConstructor
 @AllArgsConstructor
-public class Feat {
+public class SkillEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "id", updatable = false, nullable = false)
     private UUID id;
 
     @NaturalId
-    @Column(name = "code", nullable = false, unique = true)
+    @Column(name = "code", unique = true, nullable = false, length = 50)
     private String code;
 
-    @Column(name = "name", nullable = false, unique = true)
+    @Column(name = "name", unique = true, nullable = false, length = 50)
     private String name;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "category", nullable = false)
-    private FeatCategory category;
+    @Column(name = "description", nullable = false, length = 150)
+    private String description;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "ability_id", nullable = false)
+    private AbilityEntity abilityEntity;
 }

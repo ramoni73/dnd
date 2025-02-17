@@ -15,7 +15,7 @@ import java.util.UUID;
 @Table(name = "ability")
 @NoArgsConstructor
 @AllArgsConstructor
-public class Ability {
+public class AbilityEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "id", updatable = false, nullable = false)
@@ -32,6 +32,6 @@ public class Ability {
     @Column(name = "description", nullable = false, length = 150)
     private String description;
 
-    @OneToMany(mappedBy = "ability", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Skill> skills = new ArrayList<>();
+    @OneToMany(mappedBy = "abilityEntity", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<SkillEntity> skillEntities = new ArrayList<>();
 }

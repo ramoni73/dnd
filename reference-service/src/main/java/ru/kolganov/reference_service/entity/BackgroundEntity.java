@@ -12,7 +12,7 @@ import java.util.*;
 @Table(name = "background")
 @NoArgsConstructor
 @AllArgsConstructor
-public class Background {
+public class BackgroundEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "id", updatable = false, nullable = false)
@@ -34,7 +34,7 @@ public class Background {
             joinColumns = @JoinColumn(name = "background_id"),
             inverseJoinColumns = @JoinColumn(name = "ability_id")
     )
-    private Set<Ability> abilities = new HashSet<>();
+    private Set<AbilityEntity> abilities = new HashSet<>();
 
     @ManyToMany
     @JoinTable(
@@ -42,7 +42,7 @@ public class Background {
             joinColumns = @JoinColumn(name = "background_id"),
             inverseJoinColumns = @JoinColumn(name = "feat_id")
     )
-    private Set<Feat> feats = new HashSet<>();
+    private Set<FeatEntity> featEntities = new HashSet<>();
 
     @ManyToMany
     @JoinTable(
@@ -50,11 +50,11 @@ public class Background {
             joinColumns = @JoinColumn(name = "background_id"),
             inverseJoinColumns = @JoinColumn(name = "skill_id")
     )
-    private Set<Skill> skills = new HashSet<>();
+    private Set<SkillEntity> skillEntities = new HashSet<>();
 
-    @OneToMany(mappedBy = "background", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<BackgroundInstrument> instruments = new ArrayList<>();
+    @OneToMany(mappedBy = "backgroundEntity", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<BackgroundInstrumentEntity> instruments = new ArrayList<>();
 
-    @OneToMany(mappedBy = "background", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<BackgroundEquipment> equipment = new ArrayList<>();
+    @OneToMany(mappedBy = "backgroundEntity", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<BackgroundEquipmentEntity> equipment = new ArrayList<>();
 }
