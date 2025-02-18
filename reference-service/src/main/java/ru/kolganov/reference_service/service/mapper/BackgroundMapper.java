@@ -5,10 +5,10 @@ import org.springframework.lang.NonNull;
 import ru.kolganov.reference_service.entity.BackgroundEntity;
 import ru.kolganov.reference_service.entity.BackgroundEquipmentEntity;
 import ru.kolganov.reference_service.entity.BackgroundInstrumentEntity;
-import ru.kolganov.reference_service.model.AbilityModel;
-import ru.kolganov.reference_service.model.BackgroundModel;
-import ru.kolganov.reference_service.model.FeatModel;
-import ru.kolganov.reference_service.model.SkillModel;
+import ru.kolganov.reference_service.service.model.AbilityModel;
+import ru.kolganov.reference_service.service.model.BackgroundModel;
+import ru.kolganov.reference_service.service.model.FeatModel;
+import ru.kolganov.reference_service.service.model.SkillModel;
 
 import java.util.stream.Collectors;
 

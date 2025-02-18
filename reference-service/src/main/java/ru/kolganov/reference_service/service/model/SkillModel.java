@@ -1,4 +1,4 @@
-package ru.kolganov.reference_service.model;
+package ru.kolganov.reference_service.service.model;
 
 public record SkillModel(
         String code,
