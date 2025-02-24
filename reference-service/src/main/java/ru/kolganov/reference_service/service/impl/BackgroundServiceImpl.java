@@ -26,7 +26,7 @@ public class BackgroundServiceImpl implements BackgroundService {
     public BackgroundModel getByCode(@NonNull final String code) {
         return backgroundRepository.findByCode(code)
                 .map(BackgroundMapper::toModel)
-                .orElseThrow(() -> new ElementNotFoundException(code, "Background not found: " + code));
+                .orElseThrow(() -> new ElementNotFoundException(code, "Background not found: %s".formatted(code)));
     }
 
     @Override

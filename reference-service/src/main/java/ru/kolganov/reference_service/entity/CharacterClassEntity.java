@@ -14,7 +14,7 @@ import java.util.UUID;
 @Table(name = "character_class")
 @NoArgsConstructor
 @AllArgsConstructor
-public class CharacterClass {
+public class CharacterClassEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "id", updatable = false, nullable = false)
@@ -30,6 +30,6 @@ public class CharacterClass {
     @Column(name = "description", nullable = false, length = 500)
     private String description;
 
-    @OneToMany(mappedBy = "characterClass", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<CharacterClassProperty> properties = new ArrayList<>();
+    @OneToMany(mappedBy = "characterClassEntity", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<CharacterClassPropertyEntity> properties = new ArrayList<>();
 }

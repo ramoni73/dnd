@@ -3,7 +3,7 @@ package ru.kolganov.reference_service.rest.dto;
 import jakarta.validation.constraints.Size;
 import org.springframework.lang.Nullable;
 
-public record BackgroundFilterRqDto(
+public record CharacterClassFilterRqDto(
         @Nullable
         @Size(max = 100, message = "Name must not exceed 255 characters")
         String name,

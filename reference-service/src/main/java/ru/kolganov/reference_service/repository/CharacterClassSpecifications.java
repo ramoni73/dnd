@@ -2,15 +2,15 @@ package ru.kolganov.reference_service.repository;
 
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.jpa.domain.Specification;
-import ru.kolganov.reference_service.entity.BackgroundEntity;
-import ru.kolganov.reference_service.service.filter.BackgroundFilter;
+import ru.kolganov.reference_service.entity.CharacterClassEntity;
+import ru.kolganov.reference_service.service.filter.CharacterClassFilter;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-public class BackgroundSpecifications {
-    public static Specification<BackgroundEntity> withFilter(BackgroundFilter filter) {
+public class CharacterClassSpecifications {
+    public static Specification<CharacterClassEntity> withFilter(CharacterClassFilter filter) {
         return (root, query, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
 

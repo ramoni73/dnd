@@ -11,7 +11,7 @@ import java.util.UUID;
 @Table(name = "character_class_property")
 @NoArgsConstructor
 @AllArgsConstructor
-public class CharacterClassProperty {
+public class CharacterClassPropertyEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "id", updatable = false, nullable = false)
@@ -25,5 +25,5 @@ public class CharacterClassProperty {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "class_id", nullable = false)
-    private CharacterClass characterClass;
+    private CharacterClassEntity characterClassEntity;
 }
