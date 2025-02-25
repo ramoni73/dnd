@@ -11,7 +11,7 @@ import java.util.UUID;
 @Table(name = "sub_race_property")
 @NoArgsConstructor
 @AllArgsConstructor
-public class SubRaceProperty {
+public class SubRacePropertyEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "id", updatable = false, nullable = false)
@@ -25,5 +25,5 @@ public class SubRaceProperty {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sub_race_id", nullable = false)
-    private SubRace subRace;
+    private SubRaceEntity subRaceEntity;
 }

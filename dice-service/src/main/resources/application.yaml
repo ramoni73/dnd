@@ -1,3 +1,18 @@
 spring:
   application:
     name: dice-service
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, metrics
+  endpoint:
+    health:
+      show-details: always
+
+info:
+  app:
+    name: Dice Service
+    version: 1.0.0
+    description: A service for rolling dice.

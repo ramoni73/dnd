@@ -11,10 +11,10 @@ import java.util.UUID;
 @Data
 @Entity
 @Builder
-@Table(name = "sub_race")
+@Table(name = "race")
 @NoArgsConstructor
 @AllArgsConstructor
-public class SubRace {
+public class RaceEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "id", updatable = false, nullable = false)
@@ -30,10 +30,18 @@ public class SubRace {
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "race_id", nullable = false)
-    private Race race;
+    @Column(name = "creature_type", nullable = false)
+    private String creatureType;
 
-    @OneToMany(mappedBy = "subRace", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<SubRaceProperty> properties = new ArrayList<>();
+    @Column(name = "creature_size", nullable = false)
+    private String creatureSize;
+
+    @Column(name = "speed", nullable = false)
+    private Integer speed;
+
+    @OneToMany(mappedBy = "raceEntity", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<SubRaceEntity> subRaceEntities = new ArrayList<>();
+
+    @OneToMany(mappedBy = "raceEntity", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<RaceSpecialTraitEntity> specialTraits = new ArrayList<>();
 }
