@@ -1,18 +1,33 @@
 version: '3.8'
 
 services:
-  postgres:
+  reference-db:
     image: postgres:15
-    container_name: postgres
+    container_name: reference-db
     environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${REFERENCE_DB_USER}
+      POSTGRES_PASSWORD: ${REFERENCE_DB_PASSWORD}
+      POSTGRES_DB: ${REFERENCE_DB_NAME}
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./init-scripts:/docker-entrypoint-initdb.d
+      - ./init-scripts/reference-service-db:/docker-entrypoint-initdb.d
     ports:
       - "5432:5432"
+    networks:
+      - app-network
+
+  character-db:
+    image: postgres:15
+    container_name: character-db
+    environment:
+      POSTGRES_USER: ${CHARACTER_DB_USER}
+      POSTGRES_PASSWORD: ${CHARACTER_DB_PASSWORD}
+      POSTGRES_DB: ${CHARACTER_DB_NAME}
+    volumes:
+      - character_data:/var/lib/postgresql/data
+      - ./init-scripts/character-service-db:/docker-entrypoint-initdb.d
+    ports:
+      - "5433:5432"
     networks:
       - app-network
 
@@ -48,7 +63,6 @@ services:
     environment:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
     depends_on:
-      - postgres
       - kafka
     networks:
       - app-network
@@ -59,3 +73,4 @@ networks:
 
 volumes:
   postgres_data:
+  character_data:
