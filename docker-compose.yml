@@ -17,17 +17,17 @@ services:
       - app-network
 
   character-db:
-    image: postgres:15
+    image: mongo:6.0
     container_name: character-db
     environment:
-      POSTGRES_USER: ${CHARACTER_DB_USER}
-      POSTGRES_PASSWORD: ${CHARACTER_DB_PASSWORD}
-      POSTGRES_DB: ${CHARACTER_DB_NAME}
+      MONGO_INITDB_ROOT_USERNAME: ${CHARACTER_DB_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${CHARACTER_DB_PASSWORD}
+      MONGO_INITDB_DATABASE: ${CHARACTER_DB_NAME}
     volumes:
-      - character_data:/var/lib/postgresql/data
       - ./init-scripts/character-service-db:/docker-entrypoint-initdb.d
+      - character_data:/data/db
     ports:
-      - "5433:5432"
+      - "27017:27017"
     networks:
       - app-network
 
