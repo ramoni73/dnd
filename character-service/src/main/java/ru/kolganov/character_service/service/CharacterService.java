@@ -6,9 +6,7 @@ import ru.kolganov.character_service.model.CharacterModel;
 public interface CharacterService {
     CharacterModel getCharacterById(@NonNull String id);
 
-    CharacterModel createCharacter(@NonNull CharacterModel character);
-
-    CharacterModel updateCharacter(@NonNull CharacterModel character);
+    CharacterModel saveCharacter(@NonNull CharacterModel character);
 
     void deleteCharacterById(@NonNull String id);
 }

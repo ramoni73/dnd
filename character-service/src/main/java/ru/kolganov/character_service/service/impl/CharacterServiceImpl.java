@@ -2,6 +2,7 @@ package ru.kolganov.character_service.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.bson.Document;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import ru.kolganov.character_service.model.CharacterModel;
@@ -21,13 +22,8 @@ public class CharacterServiceImpl implements CharacterService {
     }
 
     @Override
-    public CharacterModel createCharacter(@NonNull final CharacterModel character) {
+    public CharacterModel saveCharacter(@NonNull final CharacterModel character) {
         return characterRepository.save(character);
-    }
-
-    @Override
-    public CharacterModel updateCharacter(@NonNull final CharacterModel character) {
-        return null;
     }
 
     @Override

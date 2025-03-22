@@ -11,13 +11,7 @@ public interface CharacterApi {
     ResponseEntity<CharacterModel> findByCharacterId(@Nullable @PathVariable final String characterId);
 
     @PostMapping("/rest/api/v1/character")
-    ResponseEntity<CharacterModel> createCharacter(@Nullable @RequestBody final CharacterModel character);
-
-    @PatchMapping("/rest/api/v1/character/{characterId}")
-    ResponseEntity<CharacterModel> updateCharacter(
-            @Nullable @PathVariable final String characterId,
-            @Nullable @RequestBody final CharacterModel character
-    );
+    ResponseEntity<CharacterModel> saveCharacter(@Nullable @RequestBody final CharacterModel character);
 
     @DeleteMapping("/rest/api/v1/character/{characterId}")
     ResponseEntity<Boolean> deleteCharacter(@Nullable @PathVariable final String characterId);

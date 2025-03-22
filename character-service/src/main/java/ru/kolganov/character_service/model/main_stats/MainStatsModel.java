@@ -1,4 +1,4 @@
-package ru.kolganov.character_service.model;
+package ru.kolganov.character_service.model.main_stats;
 
 import java.util.List;
 

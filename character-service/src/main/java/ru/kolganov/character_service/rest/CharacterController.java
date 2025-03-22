@@ -19,13 +19,8 @@ public class CharacterController implements CharacterApi {
     }
 
     @Override
-    public ResponseEntity<CharacterModel> createCharacter(CharacterModel character) {
-        return ResponseEntity.ok(characterService.createCharacter(character));
-    }
-
-    @Override
-    public ResponseEntity<CharacterModel> updateCharacter(String characterId, CharacterModel character) {
-        return null;
+    public ResponseEntity<CharacterModel> saveCharacter(CharacterModel character) {
+        return ResponseEntity.ok(characterService.saveCharacter(character));
     }
 
     @Override
