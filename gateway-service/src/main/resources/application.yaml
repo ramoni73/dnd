@@ -1,0 +1,31 @@
+server:
+  port: ${SERVER_PORT:8080}
+
+spring:
+  application:
+    name: gateway-service
+  cloud:
+    gateway:
+      routes:
+        - id: character-service
+          uri: http://localhost:8082
+          predicates:
+            - Path=/api/characters/**
+        - id: dice-service
+          uri: http://localhost:8090
+          predicates:
+            - Path=/api/dice/**
+        - id: reference-service
+          uri: http://localhost:8081
+          predicates:
+            - Path=/api/reference/**
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${DND_GOOGLE_CLIENT_ID}
+            client-secret: ${DND_GOOGLE_CLIENT_SECRET}
+            scope:
+              - email
+              - profile

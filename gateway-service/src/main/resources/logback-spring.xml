@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <!-- Определение консольного аппендера -->
+    <appender name="consoleJsonAppender" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
+            <providers>
+                <!-- Временная метка -->
+                <timestamp>
+                    <timeZone>UTC</timeZone>
+                </timestamp>
+                <!-- Уровень логирования -->
+                <level/>
+                <!-- Имя логгера -->
+                <loggerName/>
+                <!-- Сообщение -->
+                <message/>
+                <!-- Исключения -->
+                <stackTrace/>
+                <!-- Дополнительные поля -->
+                <mdc/> <!-- Mapped Diagnostic Context -->
+                <thread/>
+            </providers>
+        </encoder>
+    </appender>
+
+    <!-- Корневой логгер -->
+    <root level="info">
+        <appender-ref ref="consoleJsonAppender"/>
+    </root>
+</configuration>
