@@ -10,22 +10,18 @@ spring:
         - id: character-service
           uri: http://localhost:8082
           predicates:
-            - Path=/api/characters/**
+            - Path=/api/service/character/**
+          filters:
+            - StripPrefix=3
         - id: dice-service
           uri: http://localhost:8090
           predicates:
-            - Path=/api/dice/**
+            - Path=/api/service/dice/**
+          filters:
+            - StripPrefix=3
         - id: reference-service
           uri: http://localhost:8081
           predicates:
-            - Path=/api/reference/**
-  security:
-    oauth2:
-      client:
-        registration:
-          google:
-            client-id: ${DND_GOOGLE_CLIENT_ID}
-            client-secret: ${DND_GOOGLE_CLIENT_SECRET}
-            scope:
-              - email
-              - profile
+            - Path=/api/service/reference/**
+          filters:
+            - StripPrefix=3
