@@ -1,6 +1,11 @@
+server:
+  port: ${SERVER_PORT:8090}
+
 spring:
   application:
     name: dice-service
+  kafka:
+    bootstrap-servers: ${BOOTSTRAP_SERVERS_CONFIG:localhost:9092}
 
 management:
   endpoints:

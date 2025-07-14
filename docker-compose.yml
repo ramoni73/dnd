@@ -39,7 +39,7 @@ services:
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
       KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
     depends_on:
@@ -55,17 +55,17 @@ services:
     networks:
       - app-network
 
-  dice-service:
-    image: ramoni73/dice-service:latest
-    container_name: dice-service
-    ports:
-      - "8090:8080"
-    environment:
-      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
-    depends_on:
-      - kafka
-    networks:
-      - app-network
+#  dice-service:
+#    image: ramoni73/dice-service:latest
+#    container_name: dice-service
+#    ports:
+#      - "8090:8080"
+#    environment:
+#      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+#    depends_on:
+#      - kafka
+#    networks:
+#      - app-network
 
 networks:
   app-network:

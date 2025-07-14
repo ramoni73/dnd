@@ -27,7 +27,7 @@ public class RollController {
         if (Objects.nonNull(rollDtoRq)) {
             final DiceModelRs result = diceRollService.getRolls(
                     rollDtoRq.diceRolls().stream()
-                            .map(m -> new DiceModelRq(m.diceType(), m.count()))
+                            .map(m -> new DiceModelRq(m.diceType(), m.count(), m.rollType()))
                             .toList());
 
             return ResponseEntity.ok(new RollDtoRs(

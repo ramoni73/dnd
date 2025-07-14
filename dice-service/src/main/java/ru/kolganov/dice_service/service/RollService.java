@@ -2,11 +2,10 @@ package ru.kolganov.dice_service.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.kolganov.dice_service.model.DiceModelResult;
-import ru.kolganov.dice_service.model.DiceModelRq;
-import ru.kolganov.dice_service.model.DiceModelRs;
-import ru.kolganov.dice_service.model.DiceType;
+import ru.kolganov.dice_service.model.*;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.IntStream;
@@ -25,7 +24,7 @@ public class RollService {
         }
 
         final List<DiceModelResult> rollResults = diceModelRqs.stream()
-                .flatMap(m -> rollDice(m.diceType(), m.count()).stream())
+                .flatMap(m -> advantageDisadvantageRoll(m.diceType(), m.count(), m.rollType()).stream())
                 .toList();
 
         final int totalResult = rollResults.stream()
@@ -34,6 +33,28 @@ public class RollService {
 
         log.info("Finished getRolls. Total result: {}, Roll results: {}", totalResult, rollResults);
         return new DiceModelRs(totalResult, rollResults);
+    }
+
+    private List<DiceModelResult> advantageDisadvantageRoll(final DiceType diceType, final Integer count, final RollType rollType) {
+        log.debug("Processing advantageDisadvantageRoll with diceType: {}, count: {}, rollType: {}", diceType, count, rollType);
+
+        if ((rollType == RollType.ADVANTAGE || rollType == RollType.DISADVANTAGE)) {
+            if (count != 2) {
+                log.warn("Invalid count for advantage/disadvantage roll. Expected 2, but got: {}", count);
+                throw new IllegalArgumentException("Count must be exactly 2 for advantage/disadvantage rolls");
+            }
+
+            List<DiceModelResult> rolls = rollDice(diceType, 2);
+
+            DiceModelResult selectedResult = rollType == RollType.ADVANTAGE
+                    ? Collections.max(rolls, Comparator.comparingInt(DiceModelResult::rollResult))
+                    : Collections.min(rolls, Comparator.comparingInt(DiceModelResult::rollResult));
+
+            log.debug("Selected result for {} roll: {}", rollType, selectedResult);
+            return List.of(selectedResult);
+        }
+
+        return rollDice(diceType, count);
     }
 
     private List<DiceModelResult> rollDice(final DiceType diceType, final Integer count) {

@@ -16,7 +16,7 @@ import java.util.concurrent.CompletableFuture;
 @Service
 @RequiredArgsConstructor
 public class KafkaProducerService {
-    private static final String topicName = "dice-roll-message";
+    private static final String topicName = "dice-roll-topic";
     private static final String topicKey = "dice-roll-key";
 
     private final KafkaTemplate<String, Object> kafkaTemplate;
