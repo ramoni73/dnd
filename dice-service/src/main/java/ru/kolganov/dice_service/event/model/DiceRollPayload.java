@@ -1,6 +1,6 @@
 package ru.kolganov.dice_service.event.model;
 
-import ru.kolganov.dice_service.model.DiceModelRs;
+import ru.kolganov.dice_service.model.RollResponse;
 
-public record DiceRollPayload(DiceModelRs diceModelRs) {
+public record DiceRollPayload(RollResponse rollResponse) {
 }

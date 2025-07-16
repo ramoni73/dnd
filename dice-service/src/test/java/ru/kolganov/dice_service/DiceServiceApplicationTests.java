@@ -2,7 +2,7 @@ package ru.kolganov.dice_service;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
-import ru.kolganov.dice_service.model.DiceModelRq;
+import ru.kolganov.dice_service.model.DiceModel;
 import ru.kolganov.dice_service.model.DiceModelRs;
 import ru.kolganov.dice_service.model.DiceType;
 import ru.kolganov.dice_service.service.RollService;
@@ -22,9 +22,9 @@ class DiceServiceApplicationTests {
 	@Test
 	void testGetRolls() {
 		RollService service = new RollService();
-		List<DiceModelRq> requests = List.of(
-				new DiceModelRq(DiceType.D6, 3),
-				new DiceModelRq(DiceType.D20, 2)
+		List<DiceModel> requests = List.of(
+				new DiceModel(DiceType.D6, 3),
+				new DiceModel(DiceType.D20, 2)
 		);
 		DiceModelRs result = service.getRolls(requests);
 		assertNotNull(result);
