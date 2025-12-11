@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
+import ru.kolganov.character_service.exception.ElementNotFoundException;
 import ru.kolganov.character_service.model.CharacterModel;
 import ru.kolganov.character_service.repository.CharacterRepository;
 import ru.kolganov.character_service.service.CharacterService;
@@ -18,7 +19,7 @@ public class CharacterServiceImpl implements CharacterService {
     @Override
     public CharacterModel getCharacterById(@NonNull final String id) {
         return characterRepository.findById(id)
-                .orElseThrow();
+                .orElseThrow(() -> new ElementNotFoundException(id, "Character not found: %s".formatted(id)));
     }
 
     @Override

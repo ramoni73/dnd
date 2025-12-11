@@ -25,6 +25,7 @@ public class CharacterController implements CharacterApi {
 
     @Override
     public ResponseEntity<Boolean> deleteCharacter(String characterId) {
+        characterService.deleteCharacterById(characterId);
         return ResponseEntity.ok(Boolean.TRUE);
     }
 }

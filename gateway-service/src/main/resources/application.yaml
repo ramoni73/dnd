@@ -10,18 +10,20 @@ spring:
         - id: character-service
           uri: http://localhost:8082
           predicates:
-            - Path=/api/service/character/**
+            - Path=/character/rest/api/v*/**
           filters:
-            - StripPrefix=3
+            - RewritePath=/character/(?<segment>.*), /$\{segment}
+
         - id: dice-service
           uri: http://localhost:8090
           predicates:
-            - Path=/api/service/dice/**
+            - Path=/dice/rest/api/v*/**
           filters:
-            - StripPrefix=3
+            - RewritePath=/dice/(?<segment>.*), /$\{segment}
+
         - id: reference-service
           uri: http://localhost:8081
           predicates:
-            - Path=/api/service/reference/**
+            - Path=/reference/rest/api/v*/**
           filters:
-            - StripPrefix=3
+            - RewritePath=/reference/(?<segment>.*), /$\{segment}
