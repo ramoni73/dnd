@@ -31,6 +31,21 @@ services:
     networks:
       - app-network
 
+  user-db:
+    image: postgres:15
+    container_name: user-db
+    environment:
+      POSTGRES_USER: ${USER_DB_USER}
+      POSTGRES_PASSWORD: ${USER_DB_PASSWORD}
+      POSTGRES_DB: ${USER_DB_NAME}
+    volumes:
+      - user_data:/var/lib/postgresql/data
+      - ./init-scripts/user-service-db:/docker-entrypoint-initdb.d
+    ports:
+      - "5433:5432"
+    networks:
+      - app-network
+
   kafka:
     image: confluentinc/cp-kafka:latest
     container_name: kafka
@@ -89,3 +104,4 @@ networks:
 volumes:
   postgres_data:
   character_data:
+  user_data:
