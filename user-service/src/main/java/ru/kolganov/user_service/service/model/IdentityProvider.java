@@ -1,4 +1,4 @@
-package ru.kolganov.user_service.model;
+package ru.kolganov.user_service.service.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

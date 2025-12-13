@@ -22,12 +22,6 @@ public class UserEntity {
     @Column(name = "id", updatable = false, nullable = false)
     private UUID id;
 
-    @Column(name = "email", nullable = false)
-    private String email;
-
-    @Column(name = "display_name", nullable = false)
-    private String displayName;
-
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;
 
