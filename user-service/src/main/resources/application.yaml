@@ -14,3 +14,31 @@ spring:
   liquibase:
     enabled: true
     change-log: classpath:db/changelog/master.xml
+  kafka:
+    bootstrap-servers: ${BOOTSTRAP_SERVERS_CONFIG:localhost:9092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      acks: all
+      retries: 3
+      max-block-ms: 5000
+      client-id: user-service
+      properties:
+        json:
+          trusted:
+            packages: ru.kolganov.user_service.event
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, metrics
+  endpoint:
+    health:
+      show-details: always
+
+info:
+  app:
+    name: User Service
+    version: 1.0.0
+    description: A service for users.
