@@ -6,24 +6,52 @@ spring:
     name: gateway-service
   cloud:
     gateway:
-      routes:
-        - id: character-service
-          uri: http://localhost:8082
-          predicates:
-            - Path=/character/rest/api/v*/**
-          filters:
-            - RewritePath=/character/(?<segment>.*), /$\{segment}
+      server:
+        webflux:
+          routes:
+            - id: character-service
+              uri: http://localhost:8082
+              predicates:
+                - Path=/character/rest/api/v*/**
+              filters:
+                - RewritePath=/character/(?<segment>.*), /$\{segment}
 
-        - id: dice-service
-          uri: http://localhost:8090
-          predicates:
-            - Path=/dice/rest/api/v*/**
-          filters:
-            - RewritePath=/dice/(?<segment>.*), /$\{segment}
+            - id: dice-service
+              uri: http://localhost:8090
+              predicates:
+                - Path=/dice/rest/api/v*/**
+              filters:
+                - RewritePath=/dice/(?<segment>.*), /$\{segment}
 
-        - id: reference-service
-          uri: http://localhost:8081
-          predicates:
-            - Path=/reference/rest/api/v*/**
-          filters:
-            - RewritePath=/reference/(?<segment>.*), /$\{segment}
+            - id: reference-service
+              uri: http://localhost:8081
+              predicates:
+                - Path=/reference/rest/api/v*/**
+              filters:
+                - RewritePath=/reference/(?<segment>.*), /$\{segment}
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${DND_GOOGLE_CLIENT_ID}
+            client-secret: ${DND_GOOGLE_CLIENT_SECRET}
+            scope: openid,profile,email
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+        provider:
+          google:
+            issuer-uri: https://accounts.google.com
+    webflux:
+      session:
+        store-type: memory
+
+google:
+  client:
+    id: ${DND_GOOGLE_CLIENT_ID}
+    secret: ${DND_GOOGLE_CLIENT_SECRET}
+
+jwt:
+  secret: ${DND_JWT_SECRET}
+
+user-service:
+  endpoint: http://localhost:8070
