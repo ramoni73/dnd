@@ -32,7 +32,6 @@ public class CustomOAuth2UserService implements ReactiveOAuth2UserService<OAuth2
                     String email = oauth2User.getAttribute("email");
                     String name = oauth2User.getAttribute("name");
 
-                    // Вызываем /users/ensure
                     return userWebClient.post()
                             .uri("/rest/api/v1/user/identify")
                             .bodyValue(Map.of(

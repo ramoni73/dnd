@@ -12,7 +12,7 @@ spring:
             - id: character-service
               uri: http://localhost:8082
               predicates:
-                - Path=/character/rest/api/v*/**
+                - Path=/character/rest/api/v1/**
               filters:
                 - RewritePath=/character/(?<segment>.*), /$\{segment}
 
@@ -41,9 +41,9 @@ spring:
         provider:
           google:
             issuer-uri: https://accounts.google.com
-    webflux:
-      session:
-        store-type: memory
+  webflux:
+    session:
+      store-type: none
 
 google:
   client:
@@ -52,6 +52,14 @@ google:
 
 jwt:
   secret: ${DND_JWT_SECRET}
+  issuer: dnd-gateway
+  expiration-minutes: 15
 
 user-service:
   endpoint: http://localhost:8070
+
+logging:
+  level:
+    org.springframework.security: DEBUG
+    org.springframework.web.reactive.function.client: DEBUG
+    org.springframework.cloud.gateway: DEBUG
