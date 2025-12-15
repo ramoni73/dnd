@@ -12,6 +12,7 @@ import ru.kolganov.gateway_service.rest.dto.UserDtoRs;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @Component
 public class CustomOAuth2UserService implements ReactiveOAuth2UserService<OAuth2UserRequest, OAuth2User> {
@@ -20,17 +21,17 @@ public class CustomOAuth2UserService implements ReactiveOAuth2UserService<OAuth2
     private final ReactiveOAuth2UserService<OAuth2UserRequest, OAuth2User> defaultUserService =
             new DefaultReactiveOAuth2UserService();
 
-    public CustomOAuth2UserService(WebClient userWebClient) {
+    public CustomOAuth2UserService(final WebClient userWebClient) {
         this.userWebClient = userWebClient;
     }
 
     @Override
-    public Mono<OAuth2User> loadUser(OAuth2UserRequest userRequest) {
+    public Mono<OAuth2User> loadUser(final OAuth2UserRequest userRequest) {
         return defaultUserService.loadUser(userRequest)
                 .flatMap(oauth2User -> {
-                    String externalId = oauth2User.getAttribute("sub");
-                    String email = oauth2User.getAttribute("email");
-                    String name = oauth2User.getAttribute("name");
+                    final String externalId = Optional.ofNullable(oauth2User.getAttribute("sub")).map(Object::toString).orElseThrow();
+                    final String email = Optional.ofNullable(oauth2User.getAttribute("email")).map(Object::toString).orElseThrow();
+                    final String name = Optional.ofNullable(oauth2User.getAttribute("name")).map(Object::toString).orElseThrow();
 
                     return userWebClient.post()
                             .uri("/rest/api/v1/user/identify")

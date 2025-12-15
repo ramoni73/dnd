@@ -1,5 +1,6 @@
 package ru.kolganov.gateway_service.config;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
@@ -12,17 +13,13 @@ import ru.kolganov.gateway_service.security.JwtPostAuthenticationSuccessHandler;
 
 @Configuration
 @EnableWebFluxSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
-
     private final JwtPostAuthenticationSuccessHandler jwtSuccessHandler;
 
-    public SecurityConfig(JwtPostAuthenticationSuccessHandler jwtSuccessHandler) {
-        this.jwtSuccessHandler = jwtSuccessHandler;
-    }
-
     @Bean
-    public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http,
-                                                            JwtAuthenticationWebFilter jwtAuthFilter) {
+    public SecurityWebFilterChain springSecurityFilterChain(final ServerHttpSecurity http,
+                                                            final JwtAuthenticationWebFilter jwtAuthFilter) {
         http
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .securityContextRepository(NoOpServerSecurityContextRepository.getInstance())
@@ -32,7 +29,7 @@ public class SecurityConfig {
                                 .anyExchange().authenticated()
                 )
                 .oauth2Login(oauth2 -> oauth2
-                                .authenticationSuccessHandler(jwtSuccessHandler)
+                        .authenticationSuccessHandler(jwtSuccessHandler)
                 )
                 .addFilterAt(jwtAuthFilter, SecurityWebFiltersOrder.AUTHENTICATION);
 

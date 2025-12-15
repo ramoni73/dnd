@@ -15,17 +15,17 @@ import java.util.stream.Collectors;
 public class JwtToHeaderFilter implements GlobalFilter {
 
     @Override
-    public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+    public Mono<Void> filter(final ServerWebExchange exchange, final GatewayFilterChain chain) {
         return ReactiveSecurityContextHolder.getContext()
                 .map(SecurityContext::getAuthentication)
                 .filter(Authentication::isAuthenticated)
                 .map(auth -> {
-                    String userId = auth.getName();
-                    String roles = auth.getAuthorities().stream()
+                    final String userId = auth.getName();
+                    final String roles = auth.getAuthorities().stream()
                             .map(GrantedAuthority::getAuthority)
                             .collect(Collectors.joining(","));
 
-                    ServerHttpRequest mutated = exchange.getRequest().mutate()
+                    final ServerHttpRequest mutated = exchange.getRequest().mutate()
                             .header("X-User-Id", userId)
                             .header("X-User-Roles", roles)
                             .build();

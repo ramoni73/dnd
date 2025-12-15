@@ -24,23 +24,18 @@ public class JwtService {
     @Value("${jwt.expiration-minutes}")
     private long expirationMinutes;
 
-    private SecretKey getSignInKey() {
-        byte[] keyBytes = Decoders.BASE64URL.decode(jwtSecret);
-        return Keys.hmacShaKeyFor(keyBytes);
-    }
-
-    public String generateToken(String userId, String roles) {
+    public String generateToken(final String userId, final String roles) {
         return Jwts.builder()
                 .issuer(issuer)
                 .subject(userId)
-                .claim("roles", roles) // "USER,ADMIN"
+                .claim("roles", roles)
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + expirationMinutes * 60 * 1000))
                 .signWith(getSignInKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
 
-    public boolean isTokenValid(String token) {
+    public boolean isTokenValid(final String token) {
         try {
             parseClaims(token);
             return true;
@@ -49,24 +44,29 @@ public class JwtService {
         }
     }
 
-    public String extractUserId(String token) {
+    public String extractUserId(final String token) {
         return extractClaim(token, Claims::getSubject);
     }
 
-    public String extractRoles(String token) {
+    public String extractRoles(final String token) {
         return extractClaim(token, claims -> (String) claims.get("roles"));
     }
 
-    private <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
+    private <T> T extractClaim(final String token, final Function<Claims, T> claimsResolver) {
         final Claims claims = parseClaims(token);
         return claimsResolver.apply(claims);
     }
 
-    private Claims parseClaims(String token) {
+    private Claims parseClaims(final String token) {
         return Jwts.parser()
                 .verifyWith(getSignInKey())
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();
+    }
+
+    private SecretKey getSignInKey() {
+        byte[] keyBytes = Decoders.BASE64URL.decode(jwtSecret);
+        return Keys.hmacShaKeyFor(keyBytes);
     }
 }

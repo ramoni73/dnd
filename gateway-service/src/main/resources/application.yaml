@@ -57,9 +57,3 @@ jwt:
 
 user-service:
   endpoint: http://localhost:8070
-
-logging:
-  level:
-    org.springframework.security: DEBUG
-    org.springframework.web.reactive.function.client: DEBUG
-    org.springframework.cloud.gateway: DEBUG
