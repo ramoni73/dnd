@@ -1,34 +1,37 @@
 package ru.kolganov.gateway_service.security;
 
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.ReactiveRedisOperations;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Mono;
 
 import java.time.Duration;
-import java.time.Instant;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Component
+@RequiredArgsConstructor
 public class RefreshTokenStore {
-    //todo нужен редис
-    private final Map<String, String> tokenStore = new ConcurrentHashMap<>();
-    private final Map<String, Instant> expiryStore = new ConcurrentHashMap<>();
+    private static final String REFRESH_TOKEN_PREFIX = "refresh_token:";
+    private static final Duration REFRESH_TOKEN_TTL = Duration.ofDays(7);
 
-    public void save(String userId, String refreshToken) {
-        tokenStore.put(userId, refreshToken);
-        expiryStore.put(userId, Instant.now().plus(Duration.ofDays(7)));
+    private final ReactiveRedisOperations<String, String> redisOps;
+
+    public Mono<Void> save(final String userId, final String refreshToken) {
+        final String key = REFRESH_TOKEN_PREFIX + userId;
+        return redisOps.opsForValue()
+                .set(key, refreshToken, REFRESH_TOKEN_TTL)
+                .then();
     }
 
-    public boolean isValid(String userId, String refreshToken) {
-        String storedToken = tokenStore.get(userId);
-        Instant expiry = expiryStore.get(userId);
-        return storedToken != null
-                && storedToken.equals(refreshToken)
-                && expiry != null
-                && expiry.isAfter(Instant.now());
+    public Mono<Boolean> isValid(final String userId, final String refreshToken) {
+        final String key = REFRESH_TOKEN_PREFIX + userId;
+        return redisOps.opsForValue()
+                .get(key)
+                .map(storedToken -> storedToken.equals(refreshToken))
+                .defaultIfEmpty(false);
     }
 
-    public void invalidate(String userId) {
-        tokenStore.remove(userId);
-        expiryStore.remove(userId);
+    public Mono<Long> invalidate(final String userId) {
+        final String key = REFRESH_TOKEN_PREFIX + userId;
+        return redisOps.unlink(key);
     }
 }

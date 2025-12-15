@@ -9,8 +9,10 @@ import org.springframework.security.web.server.WebFilterExchange;
 import org.springframework.security.web.server.authentication.ServerAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 @Component
@@ -33,22 +35,22 @@ public class JwtPostAuthenticationSuccessHandler implements ServerAuthentication
         final String accessJwt = jwtService.generateAccessToken(userId, roles);
         final String refreshJwt = jwtService.generateRefreshToken(userId);
 
-        refreshTokenStore.save(userId, refreshJwt);
+        return refreshTokenStore.save(userId, refreshJwt)
+                .then(Mono.defer(() -> {
+                    final String jsonResponse = objectMapper.createObjectNode()
+                            .put("access_token", accessJwt)
+                            .put("refresh_token", refreshJwt)
+                            .put("token_type", "Bearer")
+                            .toString();
 
-        final String jsonResponse = objectMapper.createObjectNode()
-                .put("access_token", accessJwt)
-                .put("refresh_token", refreshJwt)
-                .put("token_type", "Bearer")
-                .toString();
+                    final byte[] bytes = jsonResponse.getBytes(StandardCharsets.UTF_8);
+                    exchange.getResponse().getHeaders().setContentType(MediaType.APPLICATION_JSON);
+                    exchange.getResponse().getHeaders().setContentLength(bytes.length);
+                    exchange.getResponse().setStatusCode(org.springframework.http.HttpStatus.OK);
 
-        exchange.getResponse().getHeaders().setContentType(MediaType.APPLICATION_JSON);
-        exchange.getResponse().setStatusCode(org.springframework.http.HttpStatus.OK);
-
-        final byte[] responseBytes = jsonResponse.getBytes(java.nio.charset.StandardCharsets.UTF_8);
-        exchange.getResponse().getHeaders().setContentLength(responseBytes.length);
-
-        return exchange.getResponse().writeWith(
-                reactor.core.publisher.Flux.just(exchange.getResponse().bufferFactory().wrap(responseBytes))
-        );
+                    return exchange.getResponse().writeWith(
+                            Flux.just(exchange.getResponse().bufferFactory().wrap(bytes))
+                    );
+                }));
     }
 }

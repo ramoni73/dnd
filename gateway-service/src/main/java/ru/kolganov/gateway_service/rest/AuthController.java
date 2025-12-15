@@ -1,6 +1,7 @@
 package ru.kolganov.gateway_service.rest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import lombok.RequiredArgsConstructor;
@@ -25,48 +26,71 @@ public class AuthController {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @PostMapping("/auth/refresh")
-    public Mono<Void> refresh(ServerWebExchange exchange) {
+    public Mono<Void> refresh(final ServerWebExchange exchange) {
         final String authHeader = exchange.getRequest().getHeaders().getFirst("Authorization");
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            exchange.getResponse().setStatusCode(HttpStatus.BAD_REQUEST);
-            return exchange.getResponse().setComplete();
+            return sendUnauthorized(exchange);
         }
 
         final String refreshToken = authHeader.substring(7);
 
+        final Claims claims;
         try {
-            final Claims claims = Jwts.parser()
+            claims = Jwts.parser()
                     .verifyWith(jwtService.getSignInKey())
                     .build()
                     .parseSignedClaims(refreshToken)
                     .getPayload();
 
             if (!"refresh".equals(claims.get("type", String.class))) {
-                throw new IllegalArgumentException("Not a refresh token");
+                return sendUnauthorized(exchange);
             }
-
-            final String userId = claims.getSubject();
-            if (refreshTokenStore.isValid(userId, refreshToken)) {
-                final String roles = "USER"; // ← временно; лучше запросить user-service
-                final String newAccessToken = jwtService.generateAccessToken(userId, roles);
-
-                final String response = objectMapper.createObjectNode()
-                        .put("access_token", newAccessToken)
-                        .put("refresh_token", refreshToken)
-                        .put("token_type", "Bearer")
-                        .toString();
-
-                exchange.getResponse().getHeaders().setContentType(MediaType.APPLICATION_JSON);
-                exchange.getResponse().setStatusCode(HttpStatus.OK);
-                final byte[] bytes = response.getBytes(StandardCharsets.UTF_8);
-                exchange.getResponse().getHeaders().setContentLength(bytes.length);
-                return exchange.getResponse().writeWith(Flux.just(exchange.getResponse().bufferFactory().wrap(bytes)));
-            }
-        } catch (Exception e) {
-            // ignore
+        } catch (final Exception e) {
+            return sendUnauthorized(exchange);
         }
 
+        final String userId = claims.getSubject();
+
+        return refreshTokenStore.isValid(userId, refreshToken)
+                .flatMap(isValid -> {
+                    if (!isValid) {
+                        return sendUnauthorized(exchange);
+                    }
+
+                    // TODO: в продакшене — получать роли из user-service или сохранять их при генерации refresh-токена
+                    String roles = "USER";
+
+                    final String newAccessToken = jwtService.generateAccessToken(userId, roles);
+                    return sendAccessTokenResponse(exchange, newAccessToken, refreshToken);
+                });
+    }
+
+    private Mono<Void> sendUnauthorized(final ServerWebExchange exchange) {
         exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
         return exchange.getResponse().setComplete();
+    }
+
+    private Mono<Void> sendAccessTokenResponse(
+            final ServerWebExchange exchange,
+            final String accessToken,
+            final String refreshToken
+    ) {
+        final ObjectNode response = objectMapper.createObjectNode()
+                .put("access_token", accessToken)
+                .put("refresh_token", refreshToken)
+                .put("token_type", "Bearer");
+
+        final String jsonResponse = response.toString();
+        final byte[] bytes = jsonResponse.getBytes(StandardCharsets.UTF_8);
+
+        exchange.getResponse().getHeaders().setContentType(MediaType.APPLICATION_JSON);
+        exchange.getResponse().getHeaders().setContentLength(bytes.length);
+        exchange.getResponse().setStatusCode(HttpStatus.OK);
+
+        return exchange.getResponse().writeWith(
+                reactor.core.publisher.Flux.just(
+                        exchange.getResponse().bufferFactory().wrap(bytes)
+                )
+        );
     }
 }
