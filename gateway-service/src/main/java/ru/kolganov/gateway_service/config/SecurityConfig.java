@@ -25,7 +25,7 @@ public class SecurityConfig {
                 .securityContextRepository(NoOpServerSecurityContextRepository.getInstance())
                 .authorizeExchange(exchanges ->
                         exchanges
-                                .pathMatchers("/actuator/**").permitAll()
+                                .pathMatchers("/actuator/**", "/auth/refresh").permitAll()
                                 .anyExchange().authenticated()
                 )
                 .oauth2Login(oauth2 -> oauth2

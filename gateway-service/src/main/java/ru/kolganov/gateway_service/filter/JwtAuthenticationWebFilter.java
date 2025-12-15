@@ -26,9 +26,14 @@ public class JwtAuthenticationWebFilter implements WebFilter {
 
     @Override
     public Mono<Void> filter(@NonNull final ServerWebExchange exchange, @NonNull final WebFilterChain chain) {
+        String path = exchange.getRequest().getPath().value();
+        if (path.equals("/auth/refresh")) {
+            return chain.filter(exchange);
+        }
+
         final String jwt = extractJwt(exchange);
 
-        if (jwt != null && jwtService.isTokenValid(jwt)) {
+        if (jwt != null && jwtService.isAccessTokenValid(jwt)) {
             final String userId = jwtService.extractUserId(jwt);
             final String roles = jwtService.extractRoles(jwt);
 

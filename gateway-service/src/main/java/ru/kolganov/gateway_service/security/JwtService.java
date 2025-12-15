@@ -21,27 +21,32 @@ public class JwtService {
     @Value("${jwt.issuer}")
     private String issuer;
 
-    @Value("${jwt.expiration-minutes}")
-    private long expirationMinutes;
+    @Value("${jwt.access-expiration-minutes}")
+    private long accessExpirationMinutes;
 
-    public String generateToken(final String userId, final String roles) {
+    @Value("${jwt.refresh-expiration-days}")
+    private long refreshExpirationDays;
+
+    public String generateAccessToken(final String userId, final String roles) {
         return Jwts.builder()
                 .issuer(issuer)
                 .subject(userId)
                 .claim("roles", roles)
                 .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + expirationMinutes * 60 * 1000))
+                .expiration(new Date(System.currentTimeMillis() + accessExpirationMinutes * 60 * 1000))
                 .signWith(getSignInKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
 
-    public boolean isTokenValid(final String token) {
-        try {
-            parseClaims(token);
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
+    public String generateRefreshToken(String userId) {
+        return Jwts.builder()
+                .issuer(issuer)
+                .subject(userId)
+                .claim("type", "refresh")
+                .issuedAt(new Date())
+                .expiration(new Date(System.currentTimeMillis() + refreshExpirationDays * 24 * 60 * 60 * 1000))
+                .signWith(getSignInKey(), SignatureAlgorithm.HS256)
+                .compact();
     }
 
     public String extractUserId(final String token) {
@@ -50,6 +55,20 @@ public class JwtService {
 
     public String extractRoles(final String token) {
         return extractClaim(token, claims -> (String) claims.get("roles"));
+    }
+
+    public SecretKey getSignInKey() {
+        byte[] keyBytes = Decoders.BASE64URL.decode(jwtSecret);
+        return Keys.hmacShaKeyFor(keyBytes);
+    }
+
+    public boolean isAccessTokenValid(String token) {
+        try {
+            Claims claims = Jwts.parser().verifyWith(getSignInKey()).build().parseSignedClaims(token).getPayload();
+            return !"refresh".equals(claims.get("type", String.class));
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     private <T> T extractClaim(final String token, final Function<Claims, T> claimsResolver) {
@@ -63,10 +82,5 @@ public class JwtService {
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();
-    }
-
-    private SecretKey getSignInKey() {
-        byte[] keyBytes = Decoders.BASE64URL.decode(jwtSecret);
-        return Keys.hmacShaKeyFor(keyBytes);
     }
 }

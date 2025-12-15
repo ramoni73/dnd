@@ -16,9 +16,9 @@ import java.util.Map;
 @Component
 @RequiredArgsConstructor
 public class JwtPostAuthenticationSuccessHandler implements ServerAuthenticationSuccessHandler {
-
     private final JwtService jwtService;
     private final ObjectMapper objectMapper = new ObjectMapper();
+    private final RefreshTokenStore refreshTokenStore;
 
     @Override
     public Mono<Void> onAuthenticationSuccess(final WebFilterExchange webFilterExchange, final Authentication authentication) {
@@ -30,12 +30,15 @@ public class JwtPostAuthenticationSuccessHandler implements ServerAuthentication
         final String userId = (String) attributes.get("userId");
         final String roles = String.join(",", (Iterable<String>) attributes.get("roles"));
 
-        final String jwt = jwtService.generateToken(userId, roles);
+        final String accessJwt = jwtService.generateAccessToken(userId, roles);
+        final String refreshJwt = jwtService.generateRefreshToken(userId);
+
+        refreshTokenStore.save(userId, refreshJwt);
 
         final String jsonResponse = objectMapper.createObjectNode()
-                .put("access_token", jwt)
+                .put("access_token", accessJwt)
+                .put("refresh_token", refreshJwt)
                 .put("token_type", "Bearer")
-                .put("expires_in", 15 * 60) // 15 минут в секундах
                 .toString();
 
         exchange.getResponse().getHeaders().setContentType(MediaType.APPLICATION_JSON);

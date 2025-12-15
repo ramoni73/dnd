@@ -53,7 +53,8 @@ google:
 jwt:
   secret: ${DND_JWT_SECRET}
   issuer: dnd-gateway
-  expiration-minutes: 15
+  access-expiration-minutes: 15
+  refresh-expiration-days: 7
 
 user-service:
   endpoint: http://localhost:8070
