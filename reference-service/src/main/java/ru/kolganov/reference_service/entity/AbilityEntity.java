@@ -2,8 +2,11 @@ package ru.kolganov.reference_service.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.Immutable;
 import org.hibernate.annotations.NaturalId;
 import ru.kolganov.reference_service.entity.enums.AbilityCode;
+import org.hibernate.annotations.Cache;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,6 +18,9 @@ import java.util.UUID;
 @Table(name = "ability")
 @NoArgsConstructor
 @AllArgsConstructor
+@Cacheable
+@Cache(usage = CacheConcurrencyStrategy.READ_ONLY)
+@Immutable
 public class AbilityEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -32,6 +38,7 @@ public class AbilityEntity {
     @Column(name = "description", nullable = false, length = 150)
     private String description;
 
+    @Cache(usage = CacheConcurrencyStrategy.READ_ONLY)
     @OneToMany(mappedBy = "abilityEntity", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<SkillEntity> skillEntities = new ArrayList<>();
 }

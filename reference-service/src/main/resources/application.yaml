@@ -9,7 +9,33 @@ spring:
     driver-class-name: org.postgresql.Driver
 
   jpa:
-    hibernate.ddl-auto: validate
+    properties:
+      hibernate:
+        generate_statistics: true
+        cache:
+          use_second_level_cache: true
+          use_query_cache: true
+          region:
+            factory_class: org.redisson.hibernate.RedissonRegionFactory
+          redisson:
+            config: redisson.yaml
+            cache_default_ttl: 3600000
+    hibernate:
+      ddl-auto: validate
+
   liquibase:
     enabled: true
     change-log: classpath:db/changelog/master.xml
+
+  redis:
+    host: ${REDIS_HOST:localhost}
+    port: ${REDIS_PORT:6379}
+    username: ${REDIS_USER:admin}
+    password: ${REDIS_PASSWORD:admin_pass}
+    database: 0
+    timeout: 5000ms
+
+logging:
+  level:
+    org.hibernate.cache: DEBUG
+    org.redisson: DEBUG

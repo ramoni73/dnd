@@ -5,6 +5,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.Immutable;
+import org.hibernate.annotations.Cache;
 
 import java.util.UUID;
 
@@ -14,6 +17,9 @@ import java.util.UUID;
 @Table(name = "background_equipment")
 @NoArgsConstructor
 @AllArgsConstructor
+@Cacheable
+@Cache(usage = CacheConcurrencyStrategy.READ_ONLY)
+@Immutable
 public class BackgroundEquipmentEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

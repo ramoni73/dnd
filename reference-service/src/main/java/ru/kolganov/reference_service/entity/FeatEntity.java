@@ -2,8 +2,11 @@ package ru.kolganov.reference_service.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.Immutable;
 import org.hibernate.annotations.NaturalId;
 import ru.kolganov.reference_service.entity.enums.FeatCategory;
+import org.hibernate.annotations.Cache;
 
 import java.util.UUID;
 
@@ -13,6 +16,9 @@ import java.util.UUID;
 @Table(name = "feat")
 @NoArgsConstructor
 @AllArgsConstructor
+@Cacheable
+@Cache(usage = CacheConcurrencyStrategy.READ_ONLY)
+@Immutable
 public class FeatEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

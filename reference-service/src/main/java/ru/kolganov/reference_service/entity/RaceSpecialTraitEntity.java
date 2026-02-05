@@ -2,6 +2,9 @@ package ru.kolganov.reference_service.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.Immutable;
+import org.hibernate.annotations.Cache;
 
 import java.util.UUID;
 
@@ -11,6 +14,9 @@ import java.util.UUID;
 @Table(name = "race_special_trait")
 @NoArgsConstructor
 @AllArgsConstructor
+@Cacheable
+@Cache(usage = CacheConcurrencyStrategy.READ_ONLY)
+@Immutable
 public class RaceSpecialTraitEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

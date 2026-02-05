@@ -2,7 +2,10 @@ package ru.kolganov.reference_service.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.Immutable;
 import org.hibernate.annotations.NaturalId;
+import org.hibernate.annotations.Cache;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,6 +17,9 @@ import java.util.UUID;
 @Table(name = "sub_race")
 @NoArgsConstructor
 @AllArgsConstructor
+@Cacheable
+@Cache(usage = CacheConcurrencyStrategy.READ_ONLY)
+@Immutable
 public class SubRaceEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -34,6 +40,7 @@ public class SubRaceEntity {
     @JoinColumn(name = "race_id", nullable = false)
     private RaceEntity raceEntity;
 
+    @Cache(usage = CacheConcurrencyStrategy.READ_ONLY)
     @OneToMany(mappedBy = "subRaceEntity", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<SubRacePropertyEntity> properties = new ArrayList<>();
 }
