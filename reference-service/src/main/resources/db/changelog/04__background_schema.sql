@@ -7,7 +7,8 @@ CREATE TABLE background (
     name VARCHAR(50) UNIQUE NOT NULL,
     description TEXT,
     equipment VARCHAR(500),
-    instruments VARCHAR(250)
+    instruments VARCHAR(250),
+    feat_id UUID REFERENCES feat(id)
 );
 
 -- changeset ramoni73:V3__background_ability
@@ -15,13 +16,6 @@ CREATE TABLE background_ability (
     background_id UUID REFERENCES background(id),
     ability_id UUID REFERENCES ability(id),
     PRIMARY KEY (background_id, ability_id)
-);
-
--- changeset ramoni73:V3__background_feat
-CREATE TABLE background_feat (
-    background_id UUID REFERENCES background(id),
-    feat_id UUID REFERENCES feat(id),
-    PRIMARY KEY (background_id, feat_id)
 );
 
 -- changeset ramoni73:V3__background_skill

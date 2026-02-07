@@ -2,10 +2,7 @@ package ru.kolganov.reference_service.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.Immutable;
 import org.hibernate.annotations.NaturalId;
-import org.hibernate.annotations.Cache;
 
 import java.util.*;
 
@@ -37,6 +34,10 @@ public class BackgroundEntity {
     @Column(name = "instruments")
     private String instruments;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "feat_id")
+    private FeatEntity featEntity;
+
     @ManyToMany
     @JoinTable(
             name = "background_ability",
@@ -44,14 +45,6 @@ public class BackgroundEntity {
             inverseJoinColumns = @JoinColumn(name = "ability_id")
     )
     private Set<AbilityEntity> abilities = new HashSet<>();
-
-    @ManyToMany
-    @JoinTable(
-            name = "background_feat",
-            joinColumns = @JoinColumn(name = "background_id"),
-            inverseJoinColumns = @JoinColumn(name = "feat_id")
-    )
-    private Set<FeatEntity> featEntities = new HashSet<>();
 
     @ManyToMany
     @JoinTable(

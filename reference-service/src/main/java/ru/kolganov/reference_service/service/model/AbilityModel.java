@@ -5,4 +5,7 @@ public record AbilityModel(
         String name,
         String description
 ) {
+    public AbilityModel(String code) {
+        this(code, null, null);
+    }
 }

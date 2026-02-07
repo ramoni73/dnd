@@ -4,8 +4,9 @@ import lombok.experimental.UtilityClass;
 import org.springframework.lang.NonNull;
 import ru.kolganov.reference_service.entity.*;
 import ru.kolganov.reference_service.rest.dto.AbilityDto;
-import ru.kolganov.reference_service.rest.dto.BackgroundDto;
 import ru.kolganov.reference_service.rest.dto.FeatDto;
+import ru.kolganov.reference_service.rest.dto.background.BackgroundRqDto;
+import ru.kolganov.reference_service.rest.dto.background.BackgroundRsDto;
 import ru.kolganov.reference_service.rest.dto.SkillDto;
 import ru.kolganov.reference_service.service.model.AbilityModel;
 import ru.kolganov.reference_service.service.model.BackgroundModel;
@@ -21,11 +22,13 @@ public class BackgroundMapper {
                 entity.getCode(),
                 entity.getName(),
                 entity.getDescription(),
+                new FeatModel(
+                        entity.getFeatEntity().getCode(),
+                        entity.getFeatEntity().getName(),
+                        entity.getFeatEntity().getCategory().name()
+                ),
                 entity.getAbilities().stream()
                         .map(m -> new AbilityModel(m.getCode().name(), m.getName(), m.getDescription()))
-                        .collect(Collectors.toSet()),
-                entity.getFeatEntities().stream()
-                        .map(m -> new FeatModel(m.getCode(), m.getName(), m.getCategory().name()))
                         .collect(Collectors.toSet()),
                 entity.getSkillEntities().stream()
                         .map(m -> new SkillModel(m.getCode(), m.getName(), m.getDescription()))
@@ -35,16 +38,14 @@ public class BackgroundMapper {
         );
     }
 
-    public BackgroundDto toDto(@NonNull final BackgroundModel model) {
-        return new BackgroundDto(
+    public BackgroundRsDto toDto(@NonNull final BackgroundModel model) {
+        return new BackgroundRsDto(
                 model.code(),
                 model.name(),
                 model.description(),
+                new FeatDto(model.feat().code(), model.feat().name(), model.feat().category()),
                 model.abilities().stream()
                         .map(m -> new AbilityDto(m.code(), m.name(), m.description()))
-                        .collect(Collectors.toSet()),
-                model.feats().stream()
-                        .map(m -> new FeatDto(m.code(), m.name(), m.category()))
                         .collect(Collectors.toSet()),
                 model.skills().stream()
                         .map(m -> new SkillDto(m.code(), m.name(), m.description()))
@@ -54,20 +55,14 @@ public class BackgroundMapper {
         );
     }
 
-    public BackgroundModel toModel(@NonNull final BackgroundDto dto) {
+    public BackgroundModel toModel(@NonNull final BackgroundRqDto dto) {
         return new BackgroundModel(
                 dto.code(),
                 dto.name(),
                 dto.description(),
-                dto.abilities().stream()
-                        .map(m -> new AbilityModel(m.code(), m.name(), m.description()))
-                        .collect(Collectors.toSet()),
-                dto.feats().stream()
-                        .map(m -> new FeatModel(m.code(), m.name(), m.category()))
-                        .collect(Collectors.toSet()),
-                dto.skills().stream()
-                        .map(m -> new SkillModel(m.code(), m.name(), m.description()))
-                        .collect(Collectors.toSet()),
+                new FeatModel(dto.featCode()),
+                dto.abilityCodes().stream().map(AbilityModel::new).collect(Collectors.toSet()),
+                dto.skillCodes().stream().map(SkillModel::new).collect(Collectors.toSet()),
                 dto.equipment(),
                 dto.instruments()
         );

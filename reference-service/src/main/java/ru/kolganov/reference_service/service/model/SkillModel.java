@@ -5,4 +5,7 @@ public record SkillModel(
         String name,
         String description
 ) {
+    public SkillModel(String code) {
+        this(code, null, null);
+    }
 }

@@ -5,12 +5,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.lang.Nullable;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RestController;
 import ru.kolganov.reference_service.exception.InvalidParameterException;
-import ru.kolganov.reference_service.rest.dto.BackgroundDto;
-import ru.kolganov.reference_service.rest.dto.BackgroundFilterRqDto;
+import ru.kolganov.reference_service.rest.dto.background.BackgroundRqDto;
+import ru.kolganov.reference_service.rest.dto.background.BackgroundRsDto;
+import ru.kolganov.reference_service.rest.dto.background.BackgroundFilterRqDto;
 import ru.kolganov.reference_service.rest.dto.PageDtoRs;
 import ru.kolganov.reference_service.service.mapper.BackgroundMapper;
 import ru.kolganov.reference_service.service.mapper.PageMapper;
@@ -27,7 +27,7 @@ public class BackgroundController implements BackgroundApi {
     private final BackgroundService backgroundService;
 
     @Override
-    public ResponseEntity<BackgroundDto> getByCode(final String code) {
+    public ResponseEntity<BackgroundRsDto> getByCode(final String code) {
         return Optional.ofNullable(code)
                 .map(c -> {
                     log.info("Fetching background by code: '{}'", c);
@@ -37,25 +37,25 @@ public class BackgroundController implements BackgroundApi {
     }
 
     @Override
-    public ResponseEntity<PageDtoRs<BackgroundDto>> findByFilter(@Valid final BackgroundFilterRqDto filter) {
+    public ResponseEntity<PageDtoRs<BackgroundRsDto>> findByFilter(@Valid final BackgroundFilterRqDto filter) {
         return Optional.ofNullable(filter)
-                        .map(m -> {
-                            log.info("Received background filter request: name='{}', description='{}', pageable='{}'", m.name(), m.description(), m.pageDto());
-                            return ResponseEntity.ok(
-                                    PageMapper.toPageDtoRs(backgroundService.findByFilter(
+                .map(m -> {
+                    log.info("Received background filter request: name='{}', description='{}', pageable='{}'", m.name(), m.description(), m.pageDto());
+                    return ResponseEntity.ok(
+                            PageMapper.toPageDtoRs(backgroundService.findByFilter(
                                             new BackgroundFilter(
                                                     StringUtils.hasText(m.name()) ? m.name() : null,
                                                     StringUtils.hasText(m.description()) ? m.description() : null
                                             ),
                                             PageMapper.toPageable(m.pageDto()))
                                     .map(BackgroundMapper::toDto)));
-                        })
+                })
                 .orElseThrow(() -> new InvalidParameterException("filter", "Background filter cannot be null"));
     }
 
     @Override
-    public ResponseEntity<BackgroundDto> create(final BackgroundDto backgroundDto) {
-        return Optional.ofNullable(backgroundDto)
+    public ResponseEntity<BackgroundRsDto> create(@Valid final BackgroundRqDto backgroundRqDto) {
+        return Optional.ofNullable(backgroundRqDto)
                 .map(m -> {
                     log.info("Received backgroundDto from request: code='{}', name='{}'", m.code(), m.name());
                     return ResponseEntity.status(HttpStatus.CREATED)

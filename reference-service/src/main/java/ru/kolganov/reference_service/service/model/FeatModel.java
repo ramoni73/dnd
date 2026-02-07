@@ -5,4 +5,7 @@ public record FeatModel(
         String name,
         String category
 ) {
+    public FeatModel(String code) {
+        this(code, null, null);
+    }
 }

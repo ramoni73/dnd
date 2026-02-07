@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.kolganov.reference_service.entity.AbilityEntity;
 import ru.kolganov.reference_service.entity.BackgroundEntity;
 import ru.kolganov.reference_service.entity.FeatEntity;
@@ -22,7 +23,6 @@ import ru.kolganov.reference_service.service.model.BackgroundModel;
 import ru.kolganov.reference_service.service.BackgroundService;
 import ru.kolganov.reference_service.service.filter.BackgroundFilter;
 import ru.kolganov.reference_service.service.mapper.BackgroundMapper;
-import ru.kolganov.reference_service.service.model.FeatModel;
 import ru.kolganov.reference_service.service.model.SkillModel;
 
 import java.util.Set;
@@ -53,6 +53,7 @@ public class BackgroundServiceImpl implements BackgroundService {
     }
 
     @Override
+    @Transactional
     public BackgroundModel create(@NonNull final BackgroundModel backgroundModel) {
         if (backgroundRepository.existsByCode(backgroundModel.code())) {
             throw new ElementAlreadyExistsException(
@@ -68,13 +69,18 @@ public class BackgroundServiceImpl implements BackgroundService {
             );
         }
 
+        FeatEntity featEntity = featRepository.findByCode(backgroundModel.feat().code())
+                .orElseThrow(() -> new ElementNotFoundException(
+                        backgroundModel.feat().code(),
+                        "Feat not found: %s".formatted(backgroundModel.feat().code())));
+
         return BackgroundMapper.toModel(backgroundRepository.save(
                 BackgroundEntity.builder()
                         .code(backgroundModel.code())
                         .name(backgroundModel.name())
                         .description(backgroundModel.description())
+                        .featEntity(featEntity)
                         .abilities(resolveAbilities(backgroundModel.abilities()))
-                        .featEntities(resolveFeats(backgroundModel.feats()))
                         .skillEntities(resolveSkills(backgroundModel.skills()))
                         .equipment(backgroundModel.equipment())
                         .instruments(backgroundModel.instruments())
@@ -88,16 +94,6 @@ public class BackgroundServiceImpl implements BackgroundService {
                 abilityRepository::findAllByCodeIn,
                 AbilityEntity::getCode,
                 "abilities"
-        );
-    }
-
-    private Set<FeatEntity> resolveFeats(Set<FeatModel> feats) {
-        return resolve(
-                feats,
-                FeatModel::code,
-                featRepository::findAllByCodeIn,
-                FeatEntity::getCode,
-                "feats"
         );
     }
 

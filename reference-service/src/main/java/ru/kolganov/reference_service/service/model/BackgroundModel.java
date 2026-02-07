@@ -6,8 +6,8 @@ public record BackgroundModel(
         String code,
         String name,
         String description,
+        FeatModel feat,
         Set<AbilityModel> abilities,
-        Set<FeatModel> feats,
         Set<SkillModel> skills,
         String equipment,
         String instruments
