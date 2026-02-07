@@ -57,10 +57,21 @@ public class BackgroundController implements BackgroundApi {
     public ResponseEntity<BackgroundRsDto> create(@Valid final BackgroundRqDto backgroundRqDto) {
         return Optional.ofNullable(backgroundRqDto)
                 .map(m -> {
-                    log.info("Received backgroundDto from request: code='{}', name='{}'", m.code(), m.name());
+                    log.info("Received background Rq Dto from request: code='{}', name='{}'", m.code(), m.name());
                     return ResponseEntity.status(HttpStatus.CREATED)
                             .body(BackgroundMapper.toDto(backgroundService.create(BackgroundMapper.toModel(m))));
                 })
-                .orElseThrow(() -> new InvalidParameterException("backgroundDto", "Background dto cannot be null"));
+                .orElseThrow(() -> new InvalidParameterException("backgroundRqDto", "background Rq Dto cannot be null"));
+    }
+
+    @Override
+    public ResponseEntity<Void> delete(final String code) {
+        Optional.ofNullable(code)
+                .orElseThrow(() -> new InvalidParameterException("code", "Background code cannot be null"));
+
+        log.info("Deleting background by code: '{}'", code);
+        backgroundService.delete(code);
+
+        return ResponseEntity.noContent().build();
     }
 }

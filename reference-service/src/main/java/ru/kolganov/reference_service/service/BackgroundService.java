@@ -10,4 +10,5 @@ public interface BackgroundService {
     BackgroundModel getByCode(@NonNull String code);
     Page<BackgroundModel> findByFilter(@NonNull BackgroundFilter backgroundFilter, @NonNull Pageable pageable);
     BackgroundModel create(@NonNull BackgroundModel backgroundModel);
+    void delete(@NonNull String code);
 }

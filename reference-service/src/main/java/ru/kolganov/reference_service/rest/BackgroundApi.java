@@ -17,4 +17,7 @@ public interface BackgroundApi {
 
     @PostMapping("rest/api/v1/background")
     ResponseEntity<BackgroundRsDto> create(@RequestBody final BackgroundRqDto backgroundRqDto);
+
+    @DeleteMapping("rest/api/v1/background/{code}")
+    ResponseEntity<Void> delete(@PathVariable final String code);
 }

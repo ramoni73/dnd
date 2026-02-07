@@ -2,7 +2,9 @@ package ru.kolganov.reference_service.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -14,6 +16,8 @@ import ru.kolganov.reference_service.entity.BackgroundEntity;
 import ru.kolganov.reference_service.entity.FeatEntity;
 import ru.kolganov.reference_service.entity.SkillEntity;
 import ru.kolganov.reference_service.entity.enums.AbilityCode;
+import ru.kolganov.reference_service.event.model.application.BackgroundCreatedApplicationEvent;
+import ru.kolganov.reference_service.event.model.application.BackgroundDeletedApplicationEvent;
 import ru.kolganov.reference_service.exception.ElementAlreadyExistsException;
 import ru.kolganov.reference_service.exception.ElementNotFoundException;
 import ru.kolganov.reference_service.exception.ElementsNotFoundException;
@@ -37,6 +41,7 @@ public class BackgroundServiceImpl implements BackgroundService {
     private final AbilityRepository abilityRepository;
     private final FeatRepository featRepository;
     private final SkillRepository skillRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Override
     @Cacheable(value = "backgrounds", key = "#code")
@@ -74,7 +79,7 @@ public class BackgroundServiceImpl implements BackgroundService {
                         backgroundModel.feat().code(),
                         "Feat not found: %s".formatted(backgroundModel.feat().code())));
 
-        return BackgroundMapper.toModel(backgroundRepository.save(
+        BackgroundModel created = BackgroundMapper.toModel(backgroundRepository.save(
                 BackgroundEntity.builder()
                         .code(backgroundModel.code())
                         .name(backgroundModel.name())
@@ -85,6 +90,20 @@ public class BackgroundServiceImpl implements BackgroundService {
                         .equipment(backgroundModel.equipment())
                         .instruments(backgroundModel.instruments())
                         .build()));
+
+        eventPublisher.publishEvent(new BackgroundCreatedApplicationEvent(this, created));
+
+        return created;
+    }
+
+    @Override
+    @CacheEvict(value = "backgrounds", key = "#code")
+    @Transactional
+    public void delete(@NonNull final String code) {
+        backgroundRepository.delete(backgroundRepository.findByCode(code)
+                .orElseThrow(() -> new ElementNotFoundException(code, "Background not found: %s".formatted(code))));
+
+        eventPublisher.publishEvent(new BackgroundDeletedApplicationEvent(this, code));
     }
 
     private Set<AbilityEntity> resolveAbilities(Set<AbilityModel> abilities) {

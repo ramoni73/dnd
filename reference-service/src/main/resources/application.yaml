@@ -28,3 +28,17 @@ spring:
     redis:
       time-to-live: 3600000  # 1 час
       cache-null-values: false
+
+  kafka:
+    bootstrap-servers: ${BOOTSTRAP_SERVERS_CONFIG:localhost:9092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      acks: all
+      retries: 3
+      max-block-ms: 5000
+      client-id: reference-service
+      properties:
+        json:
+          trusted:
+            packages: ru.kolganov.reference_service.event
