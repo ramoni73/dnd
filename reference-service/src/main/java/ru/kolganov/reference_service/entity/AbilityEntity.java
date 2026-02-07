@@ -18,9 +18,6 @@ import java.util.UUID;
 @Table(name = "ability")
 @NoArgsConstructor
 @AllArgsConstructor
-@Cacheable
-@Cache(usage = CacheConcurrencyStrategy.READ_ONLY)
-@Immutable
 public class AbilityEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -38,7 +35,6 @@ public class AbilityEntity {
     @Column(name = "description", nullable = false, length = 150)
     private String description;
 
-    @Cache(usage = CacheConcurrencyStrategy.READ_ONLY)
     @OneToMany(mappedBy = "abilityEntity", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<SkillEntity> skillEntities = new ArrayList<>();
 }

@@ -15,9 +15,6 @@ import java.util.UUID;
 @Table(name = "skill")
 @NoArgsConstructor
 @AllArgsConstructor
-@Cacheable
-@Cache(usage = CacheConcurrencyStrategy.READ_ONLY)
-@Immutable
 public class SkillEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

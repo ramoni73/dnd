@@ -10,8 +10,11 @@ import ru.kolganov.reference_service.rest.dto.PageDtoRs;
 public interface BackgroundApi {
 
     @GetMapping("/rest/api/v1/background/{code}")
-    ResponseEntity<BackgroundDto> getByCode(@Nullable @PathVariable final String code);
+    ResponseEntity<BackgroundDto> getByCode(@PathVariable final String code);
+
+    @PostMapping("rest/api/v1/background/search")
+    ResponseEntity<PageDtoRs<BackgroundDto>> findByFilter(@RequestBody final BackgroundFilterRqDto filter);
 
     @PostMapping("rest/api/v1/background")
-    ResponseEntity<PageDtoRs<BackgroundDto>> findByFilter(@Nullable @RequestBody final BackgroundFilterRqDto filter);
+    ResponseEntity<BackgroundDto> create(@RequestBody final BackgroundDto backgroundDto);
 }

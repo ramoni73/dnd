@@ -17,9 +17,6 @@ import java.util.UUID;
 @Table(name = "sub_race")
 @NoArgsConstructor
 @AllArgsConstructor
-@Cacheable
-@Cache(usage = CacheConcurrencyStrategy.READ_ONLY)
-@Immutable
 public class SubRaceEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -40,7 +37,6 @@ public class SubRaceEntity {
     @JoinColumn(name = "race_id", nullable = false)
     private RaceEntity raceEntity;
 
-    @Cache(usage = CacheConcurrencyStrategy.READ_ONLY)
     @OneToMany(mappedBy = "subRaceEntity", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<SubRacePropertyEntity> properties = new ArrayList<>();
 }

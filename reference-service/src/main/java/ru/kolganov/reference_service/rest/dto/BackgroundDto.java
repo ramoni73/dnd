@@ -9,7 +9,7 @@ public record BackgroundDto(
         Set<AbilityDto> abilities,
         Set<FeatDto> feats,
         Set<SkillDto> skills,
-        Set<String> backgroundEquipment,
-        Set<String> backgroundInstrument
+        String equipment,
+        String instruments
 ) {
 }

@@ -14,9 +14,6 @@ import java.util.UUID;
 @Table(name = "sub_race_property")
 @NoArgsConstructor
 @AllArgsConstructor
-@Cacheable
-@Cache(usage = CacheConcurrencyStrategy.READ_ONLY)
-@Immutable
 public class SubRacePropertyEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

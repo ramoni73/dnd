@@ -9,4 +9,5 @@ import ru.kolganov.reference_service.service.filter.BackgroundFilter;
 public interface BackgroundService {
     BackgroundModel getByCode(@NonNull String code);
     Page<BackgroundModel> findByFilter(@NonNull BackgroundFilter backgroundFilter, @NonNull Pageable pageable);
+    BackgroundModel create(@NonNull BackgroundModel backgroundModel);
 }

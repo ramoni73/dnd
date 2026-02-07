@@ -14,9 +14,6 @@ import java.util.UUID;
 @Table(name = "race_special_trait")
 @NoArgsConstructor
 @AllArgsConstructor
-@Cacheable
-@Cache(usage = CacheConcurrencyStrategy.READ_ONLY)
-@Immutable
 public class RaceSpecialTraitEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

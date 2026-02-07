@@ -2,6 +2,7 @@ package ru.kolganov.reference_service.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -23,6 +24,7 @@ public class RaceServiceImpl implements RaceService {
     private final RaceRepository raceRepository;
 
     @Override
+    @Cacheable(value = "race", key = "#code")
     public RaceModel getByCode(@NonNull final String code) {
         return raceRepository.findByCode(code)
                 .map(RaceMapper::toModel)

@@ -2,6 +2,7 @@ package ru.kolganov.reference_service.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -23,6 +24,7 @@ public class CharacterClassServiceImpl implements CharacterClassService {
     private final CharacterClassRepository characterClassRepository;
 
     @Override
+    @Cacheable(value = "classes", key = "#code")
     public CharacterClassModel getByCode(@NonNull final String code) {
         return characterClassRepository.findByCode(code)
                 .map(CharacterClassMapper::toModel)

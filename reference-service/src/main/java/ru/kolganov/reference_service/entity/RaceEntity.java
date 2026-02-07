@@ -17,9 +17,6 @@ import java.util.UUID;
 @Table(name = "race")
 @NoArgsConstructor
 @AllArgsConstructor
-@Cacheable
-@Cache(usage = CacheConcurrencyStrategy.READ_ONLY)
-@Immutable
 public class RaceEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -45,11 +42,9 @@ public class RaceEntity {
     @Column(name = "speed", nullable = false)
     private Integer speed;
 
-    @Cache(usage = CacheConcurrencyStrategy.READ_ONLY)
     @OneToMany(mappedBy = "raceEntity", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<SubRaceEntity> subRaceEntities = new ArrayList<>();
 
-    @Cache(usage = CacheConcurrencyStrategy.READ_ONLY)
     @OneToMany(mappedBy = "raceEntity", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<RaceSpecialTraitEntity> specialTraits = new ArrayList<>();
 }

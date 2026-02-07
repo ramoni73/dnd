@@ -15,9 +15,6 @@ import java.util.*;
 @Table(name = "background")
 @NoArgsConstructor
 @AllArgsConstructor
-@Cacheable
-@Cache(usage = CacheConcurrencyStrategy.READ_ONLY)
-@Immutable
 public class BackgroundEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -34,7 +31,12 @@ public class BackgroundEntity {
     @Column(columnDefinition = "TEXT")
     private String description;
 
-    @Cache(usage = CacheConcurrencyStrategy.READ_ONLY)
+    @Column(name = "equipment")
+    private String equipment;
+
+    @Column(name = "instruments")
+    private String instruments;
+
     @ManyToMany
     @JoinTable(
             name = "background_ability",
@@ -43,7 +45,6 @@ public class BackgroundEntity {
     )
     private Set<AbilityEntity> abilities = new HashSet<>();
 
-    @Cache(usage = CacheConcurrencyStrategy.READ_ONLY)
     @ManyToMany
     @JoinTable(
             name = "background_feat",
@@ -52,7 +53,6 @@ public class BackgroundEntity {
     )
     private Set<FeatEntity> featEntities = new HashSet<>();
 
-    @Cache(usage = CacheConcurrencyStrategy.READ_ONLY)
     @ManyToMany
     @JoinTable(
             name = "background_skill",
@@ -60,12 +60,4 @@ public class BackgroundEntity {
             inverseJoinColumns = @JoinColumn(name = "skill_id")
     )
     private Set<SkillEntity> skillEntities = new HashSet<>();
-
-    @Cache(usage = CacheConcurrencyStrategy.READ_ONLY)
-    @OneToMany(mappedBy = "backgroundEntity", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<BackgroundInstrumentEntity> instruments = new ArrayList<>();
-
-    @Cache(usage = CacheConcurrencyStrategy.READ_ONLY)
-    @OneToMany(mappedBy = "backgroundEntity", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<BackgroundEquipmentEntity> equipment = new ArrayList<>();
 }

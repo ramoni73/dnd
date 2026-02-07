@@ -14,9 +14,6 @@ import java.util.UUID;
 @Table(name = "character_class_property")
 @NoArgsConstructor
 @AllArgsConstructor
-@Cacheable
-@Cache(usage = CacheConcurrencyStrategy.READ_ONLY)
-@Immutable
 public class CharacterClassPropertyEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

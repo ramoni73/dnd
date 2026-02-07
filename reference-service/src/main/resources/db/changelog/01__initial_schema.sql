@@ -3,13 +3,10 @@
 -- changeset ramoni73:basic_uuid_extension
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
--- changeset ramoni73:basic_types
-CREATE TYPE ability_code AS ENUM ('STR', 'DEX', 'CON', 'INT', 'WIS', 'CHA');
-
 -- changeset ramoni73:basic_tables_ability
 CREATE TABLE ability (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    code ability_code NOT NULL,
+    code VARCHAR(3) NOT NULL,
     name VARCHAR(20) UNIQUE NOT NULL,
     description VARCHAR(150) NOT NULL
 );

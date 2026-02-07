@@ -9,7 +9,7 @@ public record BackgroundModel(
         Set<AbilityModel> abilities,
         Set<FeatModel> feats,
         Set<SkillModel> skills,
-        Set<String> backgroundEquipment,
-        Set<String> backgroundInstrument
+        String equipment,
+        String instruments
 ) {
 }

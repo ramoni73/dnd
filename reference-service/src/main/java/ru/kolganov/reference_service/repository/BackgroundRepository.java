@@ -10,4 +10,6 @@ import java.util.UUID;
 
 public interface BackgroundRepository extends JpaRepository<BackgroundEntity, UUID>, JpaSpecificationExecutor<BackgroundEntity> {
     Optional<BackgroundEntity> findByCode(@NonNull String code);
+    boolean existsByCode(String code);
+    boolean existsByName(String name);
 }

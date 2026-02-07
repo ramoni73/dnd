@@ -5,7 +5,9 @@ CREATE TABLE background (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     code VARCHAR(50) UNIQUE NOT NULL,
     name VARCHAR(50) UNIQUE NOT NULL,
-    description TEXT
+    description TEXT,
+    equipment VARCHAR(500),
+    instruments VARCHAR(250)
 );
 
 -- changeset ramoni73:V3__background_ability
@@ -28,21 +30,3 @@ CREATE TABLE background_skill (
     skill_id UUID NOT NULL REFERENCES skill(id),
     PRIMARY KEY (background_id, skill_id)
 );
-
--- changeset ramoni73:V3__background_instrument
-CREATE TABLE background_instrument (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    background_id UUID NOT NULL REFERENCES background(id),
-    value TEXT NOT NULL
-);
-
-CREATE INDEX idx_background_instrument_background_id ON background_instrument(background_id);
-
--- changeset ramoni73:V3__background_equipment
-CREATE TABLE background_equipment (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    background_id UUID NOT NULL REFERENCES background(id),
-    value TEXT NOT NULL
-);
-
-CREATE INDEX idx_background_equipment_background_id ON background_equipment(background_id);

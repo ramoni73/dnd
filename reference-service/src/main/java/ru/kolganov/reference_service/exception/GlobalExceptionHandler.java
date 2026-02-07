@@ -23,7 +23,7 @@ public class GlobalExceptionHandler {
                 LocalDateTime.now()
         );
 
-        log.error("Element not found: {} ({})", ex.getElementName(), ex.getMessage());
+        log.error("Element not found: '{}' ('{}')", ex.getElementName(), ex.getMessage());
         return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
     }
 
@@ -36,7 +36,7 @@ public class GlobalExceptionHandler {
                 LocalDateTime.now()
         );
 
-        log.error("Invalid parameter: {} ({})", ex.getParameterName(), ex.getMessage());
+        log.error("Invalid parameter: '{}' ('{}')", ex.getParameterName(), ex.getMessage());
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 
@@ -54,7 +54,7 @@ public class GlobalExceptionHandler {
                 LocalDateTime.now()
         );
 
-        log.error("Validation failed: {}", errorResponse.message());
+        log.error("Validation failed: '{}'", errorResponse.message());
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 
@@ -67,7 +67,33 @@ public class GlobalExceptionHandler {
                 LocalDateTime.now()
         );
 
-        log.error("Unexpected error occurred: {}", ex.getMessage(), ex);
+        log.error("Unexpected error occurred: '{}'", ex.getMessage(), ex);
         return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(ElementsNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleElementsNotFoundException(ElementsNotFoundException ex) {
+        ErrorResponse errorResponse = new ErrorResponse(
+                HttpStatus.NOT_FOUND.value(),
+                "Elements not found",
+                ex.getMessage(),
+                LocalDateTime.now()
+        );
+
+        log.error("Elements not found: '{}' ('{}')", ex.getElementsName(), ex.getMessage());
+        return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(ElementAlreadyExistsException.class)
+    public ResponseEntity<ErrorResponse> handleElementAlreadyExistsException(ElementAlreadyExistsException ex) {
+        ErrorResponse errorResponse = new ErrorResponse(
+                HttpStatus.CONFLICT.value(),
+                "Element already exists exception",
+                ex.getMessage(),
+                LocalDateTime.now()
+        );
+
+        log.error("Element already exists exception: '{}' ('{}')", ex.getElementName(), ex.getMessage());
+        return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
     }
 }

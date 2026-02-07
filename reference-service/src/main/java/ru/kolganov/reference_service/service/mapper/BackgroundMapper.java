@@ -2,9 +2,7 @@ package ru.kolganov.reference_service.service.mapper;
 
 import lombok.experimental.UtilityClass;
 import org.springframework.lang.NonNull;
-import ru.kolganov.reference_service.entity.BackgroundEntity;
-import ru.kolganov.reference_service.entity.BackgroundEquipmentEntity;
-import ru.kolganov.reference_service.entity.BackgroundInstrumentEntity;
+import ru.kolganov.reference_service.entity.*;
 import ru.kolganov.reference_service.rest.dto.AbilityDto;
 import ru.kolganov.reference_service.rest.dto.BackgroundDto;
 import ru.kolganov.reference_service.rest.dto.FeatDto;
@@ -32,12 +30,8 @@ public class BackgroundMapper {
                 entity.getSkillEntities().stream()
                         .map(m -> new SkillModel(m.getCode(), m.getName(), m.getDescription()))
                         .collect(Collectors.toSet()),
-                entity.getEquipment().stream()
-                        .map(BackgroundEquipmentEntity::getValue)
-                        .collect(Collectors.toSet()),
-                entity.getInstruments().stream()
-                        .map(BackgroundInstrumentEntity::getValue)
-                        .collect(Collectors.toSet())
+                entity.getEquipment(),
+                entity.getInstruments()
         );
     }
 
@@ -55,8 +49,27 @@ public class BackgroundMapper {
                 model.skills().stream()
                         .map(m -> new SkillDto(m.code(), m.name(), m.description()))
                         .collect(Collectors.toSet()),
-                model.backgroundEquipment(),
-                model.backgroundInstrument()
+                model.equipment(),
+                model.instruments()
+        );
+    }
+
+    public BackgroundModel toModel(@NonNull final BackgroundDto dto) {
+        return new BackgroundModel(
+                dto.code(),
+                dto.name(),
+                dto.description(),
+                dto.abilities().stream()
+                        .map(m -> new AbilityModel(m.code(), m.name(), m.description()))
+                        .collect(Collectors.toSet()),
+                dto.feats().stream()
+                        .map(m -> new FeatModel(m.code(), m.name(), m.category()))
+                        .collect(Collectors.toSet()),
+                dto.skills().stream()
+                        .map(m -> new SkillModel(m.code(), m.name(), m.description()))
+                        .collect(Collectors.toSet()),
+                dto.equipment(),
+                dto.instruments()
         );
     }
 }

@@ -16,9 +16,6 @@ import java.util.UUID;
 @Table(name = "feat")
 @NoArgsConstructor
 @AllArgsConstructor
-@Cacheable
-@Cache(usage = CacheConcurrencyStrategy.READ_ONLY)
-@Immutable
 public class FeatEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
