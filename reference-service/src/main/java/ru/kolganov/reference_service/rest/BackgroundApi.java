@@ -2,22 +2,27 @@ package ru.kolganov.reference_service.rest;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.kolganov.reference_service.rest.dto.background.BackgroundRqDto;
+import ru.kolganov.reference_service.rest.dto.background.BackgroundCreateRqDto;
 import ru.kolganov.reference_service.rest.dto.background.BackgroundRsDto;
 import ru.kolganov.reference_service.rest.dto.background.BackgroundFilterRqDto;
 import ru.kolganov.reference_service.rest.dto.PageDtoRs;
+import ru.kolganov.reference_service.rest.dto.background.BackgroundUpdateRqDto;
 
+@RequestMapping("/rest/api/v1/background")
 public interface BackgroundApi {
 
-    @GetMapping("/rest/api/v1/background/{code}")
+    @GetMapping("/{code}")
     ResponseEntity<BackgroundRsDto> getByCode(@PathVariable final String code);
 
-    @PostMapping("rest/api/v1/background/search")
+    @PostMapping("/search")
     ResponseEntity<PageDtoRs<BackgroundRsDto>> findByFilter(@RequestBody final BackgroundFilterRqDto filter);
 
-    @PostMapping("rest/api/v1/background")
-    ResponseEntity<BackgroundRsDto> create(@RequestBody final BackgroundRqDto backgroundRqDto);
+    @PostMapping()
+    ResponseEntity<BackgroundRsDto> create(@RequestBody final BackgroundCreateRqDto backgroundCreateRqDto);
 
-    @DeleteMapping("rest/api/v1/background/{code}")
+    @PatchMapping("/{code}")
+    ResponseEntity<BackgroundRsDto> update(@PathVariable final String code, @RequestBody final BackgroundUpdateRqDto backgroundUpdateRqDto);
+
+    @DeleteMapping("/{code}")
     ResponseEntity<Void> delete(@PathVariable final String code);
 }

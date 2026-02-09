@@ -8,10 +8,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RestController;
 import ru.kolganov.reference_service.exception.InvalidParameterException;
-import ru.kolganov.reference_service.rest.dto.background.BackgroundRqDto;
+import ru.kolganov.reference_service.rest.dto.background.BackgroundCreateRqDto;
 import ru.kolganov.reference_service.rest.dto.background.BackgroundRsDto;
 import ru.kolganov.reference_service.rest.dto.background.BackgroundFilterRqDto;
 import ru.kolganov.reference_service.rest.dto.PageDtoRs;
+import ru.kolganov.reference_service.rest.dto.background.BackgroundUpdateRqDto;
 import ru.kolganov.reference_service.service.mapper.BackgroundMapper;
 import ru.kolganov.reference_service.service.mapper.PageMapper;
 import ru.kolganov.reference_service.rest.BackgroundApi;
@@ -54,14 +55,28 @@ public class BackgroundController implements BackgroundApi {
     }
 
     @Override
-    public ResponseEntity<BackgroundRsDto> create(@Valid final BackgroundRqDto backgroundRqDto) {
-        return Optional.ofNullable(backgroundRqDto)
+    public ResponseEntity<BackgroundRsDto> create(@Valid final BackgroundCreateRqDto backgroundCreateRqDto) {
+        return Optional.ofNullable(backgroundCreateRqDto)
                 .map(m -> {
-                    log.info("Received background Rq Dto from request: code='{}', name='{}'", m.code(), m.name());
+                    log.info("Received background create Rq Dto from request: code='{}', name='{}'", m.code(), m.name());
                     return ResponseEntity.status(HttpStatus.CREATED)
                             .body(BackgroundMapper.toDto(backgroundService.create(BackgroundMapper.toModel(m))));
                 })
-                .orElseThrow(() -> new InvalidParameterException("backgroundRqDto", "background Rq Dto cannot be null"));
+                .orElseThrow(() -> new InvalidParameterException("backgroundRqDto", "background create Rq Dto cannot be null"));
+    }
+
+    @Override
+    public ResponseEntity<BackgroundRsDto> update(final String code, @Valid final BackgroundUpdateRqDto backgroundUpdateRqDto) {
+        if (code == null) {
+            throw new InvalidParameterException("code", "code cannot be null");
+        }
+        return Optional.ofNullable(backgroundUpdateRqDto)
+                .map(m -> {
+                    log.info("Received background update Rq Dto from request: code='{}', name='{}'", code, m.name());
+                    return ResponseEntity.ok(BackgroundMapper.toDto(
+                            backgroundService.update(BackgroundMapper.toModel(code, backgroundUpdateRqDto))));
+                })
+                .orElseThrow(() -> new InvalidParameterException("backgroundUpdateRqDto", "background update Rq Dto cannot be null"));
     }
 
     @Override

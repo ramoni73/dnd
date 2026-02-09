@@ -5,7 +5,7 @@ import jakarta.validation.constraints.Size;
 
 import java.util.Set;
 
-public record BackgroundRqDto(
+public record BackgroundCreateRqDto(
         @NotNull(message = "must not be null")
         String code,
 

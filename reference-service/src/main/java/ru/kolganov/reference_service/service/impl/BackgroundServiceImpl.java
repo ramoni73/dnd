@@ -46,9 +46,7 @@ public class BackgroundServiceImpl implements BackgroundService {
     @Override
     @Cacheable(value = "backgrounds", key = "#code")
     public BackgroundModel getByCode(@NonNull final String code) {
-        return backgroundRepository.findByCode(code)
-                .map(BackgroundMapper::toModel)
-                .orElseThrow(() -> new ElementNotFoundException(code, "Background not found: %s".formatted(code)));
+        return BackgroundMapper.toModel(getBackgroundEntityByCode(code));
     }
 
     @Override
@@ -74,10 +72,7 @@ public class BackgroundServiceImpl implements BackgroundService {
             );
         }
 
-        FeatEntity featEntity = featRepository.findByCode(backgroundModel.feat().code())
-                .orElseThrow(() -> new ElementNotFoundException(
-                        backgroundModel.feat().code(),
-                        "Feat not found: %s".formatted(backgroundModel.feat().code())));
+        FeatEntity featEntity = getFeatEntityByCode(backgroundModel.feat().code());
 
         BackgroundModel created = BackgroundMapper.toModel(backgroundRepository.save(
                 BackgroundEntity.builder()
@@ -97,13 +92,69 @@ public class BackgroundServiceImpl implements BackgroundService {
     }
 
     @Override
+    @CacheEvict(value = {"backgrounds", "backgrounds:search"}, allEntries = true)
+    public BackgroundModel update(@NonNull final BackgroundModel backgroundModel) {
+        BackgroundEntity entity = getBackgroundEntityByCode(backgroundModel.code());
+
+        if (backgroundModel.name() != null) {
+            entity.setName(backgroundModel.name());
+        }
+        if (backgroundModel.description() != null) {
+            entity.setDescription(backgroundModel.description());
+        }
+        if (backgroundModel.equipment() != null) {
+            entity.setEquipment(backgroundModel.equipment());
+        }
+        if (backgroundModel.instruments() != null) {
+            entity.setInstruments(backgroundModel.instruments());
+        }
+
+        if (backgroundModel.feat() != null) {
+            FeatEntity feat = getFeatEntityByCode(backgroundModel.feat().code());
+            entity.setFeatEntity(feat);
+        }
+
+        if (backgroundModel.abilities() != null) {
+            if (backgroundModel.abilities().isEmpty()) {
+                entity.getAbilities().clear();
+            } else {
+                Set<AbilityEntity> abilities = resolveAbilities(backgroundModel.abilities());
+                entity.getAbilities().clear();
+                entity.getAbilities().addAll(abilities);
+            }
+        }
+
+        if (backgroundModel.skills() != null) {
+            if (backgroundModel.skills().isEmpty()) {
+                entity.getSkillEntities().clear();
+            } else {
+                Set<SkillEntity> skills = resolveSkills(backgroundModel.skills());
+                entity.getSkillEntities().clear();
+                entity.getSkillEntities().addAll(skills);
+            }
+        }
+
+        BackgroundEntity saved = backgroundRepository.save(entity);
+
+        return BackgroundMapper.toModel(saved);
+    }
+
+    @Override
     @CacheEvict(value = "backgrounds", key = "#code")
     @Transactional
     public void delete(@NonNull final String code) {
-        backgroundRepository.delete(backgroundRepository.findByCode(code)
-                .orElseThrow(() -> new ElementNotFoundException(code, "Background not found: %s".formatted(code))));
-
+        backgroundRepository.delete(getBackgroundEntityByCode(code));
         eventPublisher.publishEvent(new BackgroundDeletedApplicationEvent(this, code));
+    }
+
+    private BackgroundEntity getBackgroundEntityByCode(String code) {
+        return backgroundRepository.findByCode(code)
+                .orElseThrow(() -> new ElementNotFoundException(code, "Background not found: %s".formatted(code)));
+    }
+
+    private FeatEntity getFeatEntityByCode(String code) {
+        return featRepository.findByCode(code)
+                .orElseThrow(() -> new ElementNotFoundException(code, "Feat not found: %s".formatted(code)));
     }
 
     private Set<AbilityEntity> resolveAbilities(Set<AbilityModel> abilities) {
