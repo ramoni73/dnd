@@ -18,6 +18,7 @@ import ru.kolganov.reference_service.entity.SkillEntity;
 import ru.kolganov.reference_service.entity.enums.AbilityCode;
 import ru.kolganov.reference_service.event.model.application.BackgroundCreatedApplicationEvent;
 import ru.kolganov.reference_service.event.model.application.BackgroundDeletedApplicationEvent;
+import ru.kolganov.reference_service.event.model.application.BackgroundUpdatedApplicationEvent;
 import ru.kolganov.reference_service.exception.ElementAlreadyExistsException;
 import ru.kolganov.reference_service.exception.ElementNotFoundException;
 import ru.kolganov.reference_service.exception.ElementsNotFoundException;
@@ -29,6 +30,7 @@ import ru.kolganov.reference_service.service.filter.BackgroundFilter;
 import ru.kolganov.reference_service.service.mapper.BackgroundMapper;
 import ru.kolganov.reference_service.service.model.SkillModel;
 
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -58,18 +60,24 @@ public class BackgroundServiceImpl implements BackgroundService {
     @Override
     @Transactional
     public BackgroundModel create(@NonNull final BackgroundModel backgroundModel) {
-        if (backgroundRepository.existsByCode(backgroundModel.code())) {
-            throw new ElementAlreadyExistsException(
-                    backgroundModel.code(),
-                    "Background with code '%s' already exists".formatted(backgroundModel.code())
-            );
-        }
+        Optional<BackgroundEntity> existing = backgroundRepository.findByCodeOrName(
+                backgroundModel.code(),
+                backgroundModel.name()
+        );
 
-        if (backgroundRepository.existsByName(backgroundModel.name())) {
-            throw new ElementAlreadyExistsException(
-                    backgroundModel.name(),
-                    "Background with name '%s' already exists".formatted(backgroundModel.name())
-            );
+        if (existing.isPresent()) {
+            BackgroundEntity found = existing.get();
+            if (found.getCode().equals(backgroundModel.code())) {
+                throw new ElementAlreadyExistsException(
+                        backgroundModel.code(),
+                        "Background with code '%s' already exists".formatted(backgroundModel.code())
+                );
+            } else {
+                throw new ElementAlreadyExistsException(
+                        backgroundModel.name(),
+                        "Background with name '%s' already exists".formatted(backgroundModel.name())
+                );
+            }
         }
 
         FeatEntity featEntity = getFeatEntityByCode(backgroundModel.feat().code());
@@ -93,10 +101,17 @@ public class BackgroundServiceImpl implements BackgroundService {
 
     @Override
     @CacheEvict(value = {"backgrounds", "backgrounds:search"}, allEntries = true)
+    @Transactional
     public BackgroundModel update(@NonNull final BackgroundModel backgroundModel) {
         BackgroundEntity entity = getBackgroundEntityByCode(backgroundModel.code());
 
-        if (backgroundModel.name() != null) {
+        if (backgroundModel.name() != null && !backgroundModel.name().equals(entity.getName())) {
+            if (backgroundRepository.existsByName(backgroundModel.name())) {
+                throw new ElementAlreadyExistsException(
+                        backgroundModel.name(),
+                        "Background with name '%s' already exists".formatted(backgroundModel.name())
+                );
+            }
             entity.setName(backgroundModel.name());
         }
         if (backgroundModel.description() != null) {
@@ -134,9 +149,11 @@ public class BackgroundServiceImpl implements BackgroundService {
             }
         }
 
-        BackgroundEntity saved = backgroundRepository.save(entity);
+        BackgroundModel saved = BackgroundMapper.toModel(backgroundRepository.save(entity));
 
-        return BackgroundMapper.toModel(saved);
+        eventPublisher.publishEvent(new BackgroundUpdatedApplicationEvent(this, saved));
+
+        return saved;
     }
 
     @Override

@@ -8,5 +8,6 @@ import ru.kolganov.reference_service.service.model.CharacterClassModel;
 
 public interface CharacterClassService {
     CharacterClassModel getByCode(@NonNull String code);
+
     Page<CharacterClassModel> findByFilter(@NonNull CharacterClassFilter filter, @NonNull Pageable pageable);
 }

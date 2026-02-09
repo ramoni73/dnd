@@ -8,5 +8,6 @@ import ru.kolganov.reference_service.service.model.RaceModel;
 
 public interface RaceService {
     RaceModel getByCode(@NonNull String code);
+
     Page<RaceModel> findByFilter(@NonNull RaceFilter filter, @NonNull Pageable pageable);
 }
