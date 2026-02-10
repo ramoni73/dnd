@@ -9,6 +9,7 @@ import ru.kolganov.reference_service.event.model.application.BackgroundCreatedAp
 import ru.kolganov.reference_service.event.model.application.BackgroundDeletedApplicationEvent;
 import ru.kolganov.reference_service.event.model.application.BackgroundUpdatedApplicationEvent;
 import ru.kolganov.reference_service.event.model.kafka.*;
+import ru.kolganov.reference_service.event.service.BackgroundUpdateEventBuilder;
 import ru.kolganov.reference_service.event.service.KafkaProducerService;
 
 import java.util.stream.Collectors;
@@ -18,6 +19,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class BackgroundKafkaEventListener {
     private final KafkaProducerService kafkaProducerService;
+    private final BackgroundUpdateEventBuilder backgroundUpdateEventBuilder;
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleBackgroundCreated(BackgroundCreatedApplicationEvent event) {
@@ -26,7 +28,7 @@ public class BackgroundKafkaEventListener {
 
             final BackgroundEvent kafkaEvent = new BackgroundEvent(
                     "BackgroundCreated",
-                    new BackgroundEventPayload(
+                    new BackgroundCreateEventPayload(
                             event.getModel().code(),
                             event.getModel().name(),
                             event.getModel().description(),
@@ -51,7 +53,7 @@ public class BackgroundKafkaEventListener {
 
             final BackgroundEvent kafkaEvent = new BackgroundEvent(
                     "BackgroundDeleted",
-                    new BackgroundEventPayload(event.getCode())
+                    new BackgroundCreateEventPayload(event.getCode())
             );
 
             kafkaProducerService.sendBackgroundEvent(kafkaEvent);
@@ -63,25 +65,16 @@ public class BackgroundKafkaEventListener {
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleBackgroundUpdated(BackgroundUpdatedApplicationEvent event) {
         try {
-            log.info("Sending BackgroundUpdated event to Kafka for background='{}'", event.getModel().code());
+            log.info("Sending BackgroundUpdated event to Kafka for background='{}'", event.getNewModel().code());
 
             final BackgroundEvent kafkaEvent = new BackgroundEvent(
                     "BackgroundUpdated",
-                    new BackgroundEventPayload(
-                            event.getModel().code(),
-                            event.getModel().name(),
-                            event.getModel().description(),
-                            new FeatEvent(event.getModel().feat().code(), event.getModel().feat().name(), event.getModel().feat().category()),
-                            event.getModel().abilities().stream().map(m -> new AbilityEvent(m.code(), m.name(), m.description())).collect(Collectors.toSet()),
-                            event.getModel().skills().stream().map(m -> new SkillEvent(m.code(), m.name(), m.description())).collect(Collectors.toSet()),
-                            event.getModel().equipment(),
-                            event.getModel().instruments()
-                    )
+                    backgroundUpdateEventBuilder.buildEvent(event.getOldModel(), event.getNewModel())
             );
 
             kafkaProducerService.sendBackgroundEvent(kafkaEvent);
         } catch (Exception e) {
-            log.error("Failed to send BackgroundUpdated event to Kafka for background='{}'", event.getModel().code(), e);
+            log.error("Failed to send BackgroundUpdated event to Kafka for background='{}'", event.getNewModel().code(), e);
         }
     }
 }

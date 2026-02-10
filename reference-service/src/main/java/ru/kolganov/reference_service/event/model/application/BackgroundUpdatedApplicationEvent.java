@@ -6,10 +6,12 @@ import ru.kolganov.reference_service.service.model.BackgroundModel;
 
 @Getter
 public class BackgroundUpdatedApplicationEvent extends ApplicationEvent {
-    private final BackgroundModel model;
+    private final BackgroundModel oldModel;
+    private final BackgroundModel newModel;
 
-    public BackgroundUpdatedApplicationEvent(Object source, BackgroundModel model) {
+    public BackgroundUpdatedApplicationEvent(Object source, BackgroundModel oldModel, BackgroundModel newModel) {
         super(source);
-        this.model = model;
+        this.oldModel = oldModel;
+        this.newModel = newModel;
     }
 }

@@ -114,6 +114,9 @@ public class BackgroundServiceImpl implements BackgroundService {
             }
             entity.setName(backgroundModel.name());
         }
+
+        BackgroundModel oldModel = BackgroundMapper.toModel(entity);
+
         if (backgroundModel.description() != null) {
             entity.setDescription(backgroundModel.description());
         }
@@ -149,11 +152,11 @@ public class BackgroundServiceImpl implements BackgroundService {
             }
         }
 
-        BackgroundModel saved = BackgroundMapper.toModel(backgroundRepository.save(entity));
+        BackgroundModel newModel = BackgroundMapper.toModel(backgroundRepository.save(entity));
 
-        eventPublisher.publishEvent(new BackgroundUpdatedApplicationEvent(this, saved));
+        eventPublisher.publishEvent(new BackgroundUpdatedApplicationEvent(this, oldModel, newModel));
 
-        return saved;
+        return newModel;
     }
 
     @Override
