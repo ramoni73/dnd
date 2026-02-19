@@ -30,6 +30,7 @@ spring:
       cache-null-values: false
 
   kafka:
+    enabled: true
     bootstrap-servers: ${BOOTSTRAP_SERVERS_CONFIG:localhost:9092}
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer

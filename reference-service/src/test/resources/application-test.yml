@@ -1,0 +1,12 @@
+spring:
+  redis:
+    enabled: false
+  cache:
+    type: simple
+  liquibase:
+    enabled: true
+  kafka:
+    enabled: false
+
+redisson:
+  enabled: false
