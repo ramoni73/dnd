@@ -22,6 +22,7 @@ import ru.kolganov.reference_service.event.model.application.BackgroundUpdatedAp
 import ru.kolganov.reference_service.exception.ElementAlreadyExistsException;
 import ru.kolganov.reference_service.exception.ElementNotFoundException;
 import ru.kolganov.reference_service.exception.ElementsNotFoundException;
+import ru.kolganov.reference_service.exception.InvalidParameterException;
 import ru.kolganov.reference_service.repository.*;
 import ru.kolganov.reference_service.service.model.AbilityModel;
 import ru.kolganov.reference_service.service.model.BackgroundModel;
@@ -60,6 +61,14 @@ public class BackgroundServiceImpl implements BackgroundService {
     @Override
     @Transactional
     public BackgroundModel create(@NonNull final BackgroundModel backgroundModel) {
+        if (backgroundModel.code() == null || backgroundModel.code().isBlank()) {
+            throw new InvalidParameterException("code", "Code cannot be null or blank");
+        }
+
+        if (backgroundModel.name() == null || backgroundModel.name().isBlank()) {
+            throw new InvalidParameterException("name", "Name cannot be null or blank");
+        }
+
         Optional<BackgroundEntity> existing = backgroundRepository.findByCodeOrName(
                 backgroundModel.code(),
                 backgroundModel.name()

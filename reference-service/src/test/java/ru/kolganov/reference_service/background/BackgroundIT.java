@@ -6,10 +6,12 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import ru.kolganov.reference_service.BaseIT;
+import ru.kolganov.reference_service.exception.ErrorResponse;
 import ru.kolganov.reference_service.rest.dto.background.BackgroundCreateRqDto;
 import ru.kolganov.reference_service.rest.dto.background.BackgroundRsDto;
 import ru.kolganov.reference_service.rest.dto.background.BackgroundUpdateRqDto;
 
+import java.util.Map;
 import java.util.Set;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -57,6 +59,209 @@ public class BackgroundIT extends BaseIT {
 
         assertThat(actual.equipment()).isEqualTo("Просто берем 50 голды.");
         assertThat(actual.instruments()).contains("воровские инструменты");
+    }
+
+    @Test
+    @DisplayName("POST /rest/api/v1/background — дубликат code → 409 Conflict")
+    void createBackground_duplicateCode_returns409() throws Exception {
+        var firstRequest = new BackgroundCreateRqDto(
+                "DUPLICATE_TEST", "First", "Desc", "Skilled",
+                Set.of("CHA", "STR", "DEX"),
+                Set.of("Performance", "Acrobatics"), "Eq", "Inst"
+        );
+        mockMvc.perform(post("/rest/api/v1/background")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsBytes(firstRequest)))
+                .andExpect(status().isCreated());
+
+        var secondRequest = new BackgroundCreateRqDto(
+                "DUPLICATE_TEST", "Second", "Desc2", "Skilled",
+                Set.of("CHA", "STR", "DEX"),
+                Set.of("Performance", "Acrobatics"), "Eq2", "Inst2"
+        );
+
+        var response = mockMvc.perform(post("/rest/api/v1/background")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsBytes(secondRequest)))
+                .andExpect(status().isConflict())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        var error = objectMapper.readValue(response, ErrorResponse.class);
+
+        assertThat(error.status()).isEqualTo(409);
+        assertThat(error.error()).isEqualTo("Element already exists exception");
+        assertThat(error.message()).contains("DUPLICATE_TEST");
+    }
+
+    @Test
+    @DisplayName("POST /rest/api/v1/background — null code → 400 Bad Request (валидация)")
+    void createBackground_nullCode_returns400() throws Exception {
+        var request = new BackgroundCreateRqDto(
+                null,
+                "Name", "Desc", "Skilled",
+                Set.of("CHA", "STR", "DEX"),
+                Set.of("Performance", "Acrobatics"), "Eq", "Inst"
+        );
+
+        var response = mockMvc.perform(post("/rest/api/v1/background")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsBytes(request)))
+                .andExpect(status().isBadRequest())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        var error = objectMapper.readValue(response, ErrorResponse.class);
+
+        assertThat(error.status()).isEqualTo(400);
+        assertThat(error.error()).isEqualTo("Validation failed");
+        assertThat(error.message()).contains("code");
+    }
+
+    @Test
+    @DisplayName("POST /rest/api/v1/background — null name → 400 Bad Request (валидация)")
+    void createBackground_nullName_returns400() throws Exception {
+        var request = new BackgroundCreateRqDto(
+                "CODE_123",
+                null,
+                "Desc", "Skilled",
+                Set.of("CHA", "STR", "DEX"),
+                Set.of("Performance", "Acrobatics"), "Eq", "Inst"
+        );
+
+        var response = mockMvc.perform(post("/rest/api/v1/background")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsBytes(request)))
+                .andExpect(status().isBadRequest())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        var error = objectMapper.readValue(response, ErrorResponse.class);
+
+        assertThat(error.status()).isEqualTo(400);
+        assertThat(error.error()).isEqualTo("Validation failed");
+        assertThat(error.message()).contains("name");
+    }
+
+    @Test
+    @DisplayName("POST /rest/api/v1/background — пустой code → 400 Bad Request (валидация)")
+    void createBackground_emptyCode_returns400() throws Exception {
+        var request = new BackgroundCreateRqDto(
+                "",
+                "Name", "Desc", "Skilled",
+                Set.of("CHA", "STR", "DEX"),
+                Set.of("Performance", "Acrobatics"), "Eq", "Inst"
+        );
+
+        var response = mockMvc.perform(post("/rest/api/v1/background")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsBytes(request)))
+                .andExpect(status().isBadRequest())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        var error = objectMapper.readValue(response, ErrorResponse.class);
+
+        assertThat(error.status()).isEqualTo(400);
+        assertThat(error.error()).isEqualTo("Validation failed");
+    }
+
+    @Test
+    @DisplayName("POST /rest/api/v1/background — неправильное количество abilityCodes → 400 Bad Request")
+    void createBackground_wrongAbilityCount_returns400() throws Exception {
+        var request = new BackgroundCreateRqDto(
+                "CODE_123", "Name", "Desc", "Skilled",
+                Set.of("CHA"),
+                Set.of("Performance", "Acrobatics"), "Eq", "Inst"
+        );
+
+        var response = mockMvc.perform(post("/rest/api/v1/background")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsBytes(request)))
+                .andExpect(status().isBadRequest())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        var error = objectMapper.readValue(response, ErrorResponse.class);
+
+        assertThat(error.status()).isEqualTo(400);
+        assertThat(error.error()).isEqualTo("Validation failed");
+        assertThat(error.message()).contains("abilityCodes");
+    }
+
+    @Test
+    @DisplayName("POST /rest/api/v1/background — некорректный JSON → 400 Bad Request")
+    void createBackground_invalidJson_returns400() throws Exception {
+        var invalidJson = "{\"code\": \"TEST\", \"name\": 123}";
+
+        var response = mockMvc.perform(post("/rest/api/v1/background")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(invalidJson))
+                .andExpect(status().isBadRequest())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        var error = objectMapper.readValue(response, ErrorResponse.class);
+
+        assertThat(error.status()).isIn(400);
+    }
+
+    @Test
+    @DisplayName("POST /rest/api/v1/background — несуществующий featCode → 404")
+    void createBackground_nonExistentFeat_returns404() throws Exception {
+        var response = mockMvc.perform(post("/rest/api/v1/background")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsBytes(new BackgroundCreateRqDto(
+                                "NEW_CODE", "Name", "Desc", "NON_EXISTENT_FEAT",
+                                Set.of("CHA", "STR", "DEX"),
+                                Set.of("Performance", "Acrobatics"), "Eq", "Inst"
+                        ))))
+                .andExpect(status().isNotFound())
+                .andReturn().getResponse().getContentAsString();
+
+        var error = objectMapper.readValue(response, ErrorResponse.class);
+        assertThat(error.status()).isEqualTo(404);
+        assertThat(error.error()).isEqualTo("Element not found");
+    }
+
+    @Test
+    @DisplayName("POST /rest/api/v1/background — несуществующие skillCodes → 404")
+    void createBackground_nonExistentSkills_returns404() throws Exception {
+        var response = mockMvc.perform(post("/rest/api/v1/background")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsBytes(new BackgroundCreateRqDto(
+                                "NEW_CODE", "Name", "Desc", "Skilled",
+                                Set.of("CHA", "STR", "DEX"), Set.of("NON_EXISTENT_SKILL", "Acrobatics"), "Eq", "Inst"
+                        ))))
+                .andExpect(status().isNotFound())
+                .andReturn().getResponse().getContentAsString();
+
+        var error = objectMapper.readValue(response, ErrorResponse.class);
+        assertThat(error.status()).isEqualTo(404);
+        assertThat(error.error()).isEqualTo("Elements not found");
+    }
+
+    @Test
+    @DisplayName("POST /rest/api/v1/background — несуществующие abilityCodes → 404")
+    void createBackground_nonExistentAbilities_returns404() throws Exception {
+        var response = mockMvc.perform(post("/rest/api/v1/background")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsBytes(new BackgroundCreateRqDto(
+                                "NEW_CODE", "Name", "Desc", "Skilled",
+                                Set.of("NON_EXISTENT_ABILITY", "CHA", "STR"), Set.of("Performance", "Acrobatics"), "Eq", "Inst"
+                        ))))
+                .andExpect(status().isNotFound())
+                .andReturn().getResponse().getContentAsString();
+
+        var error = objectMapper.readValue(response, ErrorResponse.class);
+        assertThat(error.status()).isEqualTo(404);
+        assertThat(error.error()).isEqualTo("Element not found");
     }
 
     @Test
@@ -120,6 +325,25 @@ public class BackgroundIT extends BaseIT {
     }
 
     @Test
+    @DisplayName("PATCH /rest/api/v1/background/{code} — обновление несуществующего кода → 404")
+    void updateBackground_notFound_returns404() throws Exception {
+        var updateRequest = new BackgroundUpdateRqDto("New Name", null, null, null, null, null, null);
+
+        var response = mockMvc.perform(patch("/rest/api/v1/background/{code}", "NON_EXISTENT_CODE")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsBytes(updateRequest)))
+                .andExpect(status().isNotFound())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        var error = objectMapper.readValue(response, ErrorResponse.class);
+
+        assertThat(error.status()).isEqualTo(404);
+        assertThat(error.error()).isEqualTo("Element not found");
+    }
+
+    @Test
     @DisplayName("GET /rest/api/v1/background/{code} — успешное получение по коду")
     void getBackground_success() throws Exception {
         var created = create(new BackgroundCreateRqDto(
@@ -169,9 +393,24 @@ public class BackgroundIT extends BaseIT {
     }
 
     @Test
+    @DisplayName("GET /rest/api/v1/background/{code} — несуществующий код → 404")
+    void getBackground_notFound_returns404() throws Exception {
+        var response = mockMvc.perform(get("/rest/api/v1/background/{code}", "NON_EXISTENT_CODE"))
+                .andExpect(status().isNotFound())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        var error = objectMapper.readValue(response, ErrorResponse.class);
+
+        assertThat(error.status()).isEqualTo(404);
+        assertThat(error.error()).isEqualTo("Element not found");
+        assertThat(error.message()).contains("NON_EXISTENT_CODE");
+    }
+
+    @Test
     @DisplayName("DELETE /rest/api/v1/background/{code} — успешное удаление")
     void deleteBackground_success() throws Exception {
-        // Arrange: создаём запись
         var created = create(new BackgroundCreateRqDto(
                 "DELETE_TEST",
                 "To Be Deleted",
@@ -184,11 +423,51 @@ public class BackgroundIT extends BaseIT {
         ));
 
         mockMvc.perform(delete("/rest/api/v1/background/{code}", created.code()))
-                .andExpect(status().isNoContent());  // 204 No Content
+                .andExpect(status().isNoContent());
 
         mockMvc.perform(get("/rest/api/v1/background/{code}", created.code()))
                 .andExpect(status().isNotFound());
     }
+
+    @Test
+    @DisplayName("DELETE /rest/api/v1/background/{code} — удаление несуществующего кода → 404")
+    void deleteBackground_notFound_returns404() throws Exception {
+        var response = mockMvc.perform(delete("/rest/api/v1/background/{code}", "NON_EXISTENT_CODE"))
+                .andExpect(status().isNotFound())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        var error = objectMapper.readValue(response, ErrorResponse.class);
+
+        assertThat(error.status()).isEqualTo(404);
+        assertThat(error.error()).isEqualTo("Element not found");
+    }
+
+    @Test
+    @DisplayName("DELETE + CREATE /rest/api/v1/background/{code} — повторное создание с тем же кодом")
+    void deleteThenCreate_sameCode_success() throws Exception {
+        var code = "RECYCLE_TEST";
+
+        create(new BackgroundCreateRqDto(
+                code, "DELETE + CREATE First", "DELETE + CREATE First desc", "Skilled",
+                Set.of("CHA", "STR", "DEX"),
+                Set.of("Performance", "Acrobatics"), "Eq1", "Inst1"
+        ));
+
+        mockMvc.perform(delete("/rest/api/v1/background/{code}", code))
+                .andExpect(status().isNoContent());
+
+        var second = create(new BackgroundCreateRqDto(
+                code, "DELETE + CREATE Second", "DELETE + CREATE Second desc", "Skilled",
+                Set.of("CHA", "STR", "DEX"),
+                Set.of("Performance", "Acrobatics"), "Eq2", "Inst2"
+        ));
+
+        assertThat(second.name()).isEqualTo("DELETE + CREATE Second");
+        assertThat(second.equipment()).isEqualTo("Eq2");
+    }
+
 
     private BackgroundRsDto create(BackgroundCreateRqDto request) throws Exception {
         var responseContent = mockMvc.perform(post("/rest/api/v1/background")
